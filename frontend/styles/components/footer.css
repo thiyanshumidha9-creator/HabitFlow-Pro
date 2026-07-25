@@ -1,0 +1,33 @@
+/* ============================================
+   HabitFlow Pro — Footer Component
+   ============================================ */
+
+.app-footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.app-footer-text {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.app-footer-version {
+  font-size: var(--fs-xs);
+  color: var(--text-disabled);
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 767px) {
+  .app-footer {
+    padding: var(--space-3) var(--space-4);
+    justify-content: center;
+    text-align: center;
+  }
+}

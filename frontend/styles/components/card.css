@@ -1,0 +1,107 @@
+/* ============================================
+   HabitFlow Pro — Card Component
+   ============================================ */
+
+.card {
+  background: var(--surface-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: box-shadow var(--duration-base) var(--ease-default),
+              transform var(--duration-base) var(--ease-default);
+}
+
+/* ── Variants ──────────────────────────────── */
+.card--elevated {
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.card--elevated:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card--outlined {
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.card--flat {
+  border: none;
+  box-shadow: none;
+  background: var(--surface-secondary);
+}
+
+.card--interactive {
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.card--interactive:active {
+  transform: scale(0.99);
+}
+
+/* ── Sections ──────────────────────────────── */
+.card-header {
+  padding: var(--space-5) var(--space-5) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.card-header-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.card-header-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.card-body {
+  padding: var(--space-3) var(--space-5) var(--space-5);
+}
+
+.card-body--flush {
+  padding: 0;
+}
+
+.card-footer {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* ── Divider ───────────────────────────────── */
+.card-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
+/* ── Sizes ─────────────────────────────────── */
+.card--sm .card-header { padding: var(--space-3) var(--space-4) var(--space-2); }
+.card--sm .card-body   { padding: var(--space-2) var(--space-4) var(--space-4); }
+.card--sm .card-footer { padding: var(--space-2) var(--space-4); }
+
+.card--lg .card-header { padding: var(--space-6) var(--space-6) var(--space-4); }
+.card--lg .card-body   { padding: var(--space-4) var(--space-6) var(--space-6); }
+.card--lg .card-footer { padding: var(--space-4) var(--space-6); }

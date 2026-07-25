@@ -1,0 +1,249 @@
+/* ============================================
+   HabitFlow Pro — Design Tokens
+   ============================================
+   All design decisions live here as CSS custom
+   properties. Components consume tokens, never
+   hard-coded values.
+   ============================================ */
+
+:root {
+  /* ── Brand ──────────────────────────────── */
+  --brand-hue: 215;
+  --brand-saturation: 100%;
+
+  /* ── Colors — Light Theme (default) ────── */
+  --color-primary:        hsl(var(--brand-hue), var(--brand-saturation), 50%);
+  --color-primary-hover:  hsl(var(--brand-hue), var(--brand-saturation), 42%);
+  --color-primary-light:  hsl(var(--brand-hue), 92%, 95%);
+  --color-primary-subtle: hsl(var(--brand-hue), 80%, 97%);
+
+  --color-success:        hsl(142, 71%, 45%);
+  --color-success-light:  hsl(142, 76%, 94%);
+  --color-warning:        hsl(38, 92%, 50%);
+  --color-warning-light:  hsl(38, 100%, 94%);
+  --color-danger:         hsl(0, 84%, 60%);
+  --color-danger-light:   hsl(0, 86%, 95%);
+  --color-info:           hsl(199, 89%, 48%);
+  --color-info-light:     hsl(199, 92%, 94%);
+
+  /* ── Neutrals ──────────────────────────── */
+  --color-white:          #ffffff;
+  --color-black:          #000000;
+  --color-gray-50:        #fafafa;
+  --color-gray-100:       #f5f5f7;
+  --color-gray-200:       #e8e8ed;
+  --color-gray-300:       #d2d2d7;
+  --color-gray-400:       #aeaeb2;
+  --color-gray-500:       #8e8e93;
+  --color-gray-600:       #636366;
+  --color-gray-700:       #48484a;
+  --color-gray-800:       #3a3a3c;
+  --color-gray-900:       #2c2c2e;
+  --color-gray-950:       #1c1c1e;
+
+  /* ── Semantic Surface Colors ───────────── */
+  --surface-bg:           var(--color-gray-100);
+  --surface-primary:      var(--color-white);
+  --surface-secondary:    var(--color-gray-50);
+  --surface-elevated:     var(--color-white);
+  --surface-overlay:      rgba(0, 0, 0, 0.45);
+
+  /* ── Semantic Text Colors ──────────────── */
+  --text-primary:         var(--color-gray-950);
+  --text-secondary:       var(--color-gray-600);
+  --text-tertiary:        var(--color-gray-500);
+  --text-disabled:        var(--color-gray-400);
+  --text-inverse:         var(--color-white);
+  --text-link:            var(--color-primary);
+
+  /* ── Borders ───────────────────────────── */
+  --border-color:         var(--color-gray-200);
+  --border-color-strong:  var(--color-gray-300);
+  --border-color-focus:   var(--color-primary);
+
+  /* ── Sidebar ───────────────────────────── */
+  --sidebar-bg:           var(--color-white);
+  --sidebar-text:         var(--color-gray-600);
+  --sidebar-text-active:  var(--color-primary);
+  --sidebar-item-hover:   var(--color-gray-100);
+  --sidebar-item-active:  var(--color-primary-light);
+  --sidebar-width:        260px;
+  --sidebar-collapsed-width: 72px;
+
+  /* ── Topnav ────────────────────────────── */
+  --topnav-bg:            var(--color-white);
+  --topnav-height:        64px;
+  --topnav-border:        var(--border-color);
+
+  /* ── Typography ────────────────────────── */
+  --font-family:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:            'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+
+  --fs-xs:    0.75rem;   /* 12px */
+  --fs-sm:    0.8125rem; /* 13px */
+  --fs-base:  0.875rem;  /* 14px */
+  --fs-md:    1rem;      /* 16px */
+  --fs-lg:    1.125rem;  /* 18px */
+  --fs-xl:    1.25rem;   /* 20px */
+  --fs-2xl:   1.5rem;    /* 24px */
+  --fs-3xl:   1.875rem;  /* 30px */
+  --fs-4xl:   2.25rem;   /* 36px */
+
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+
+  --lh-tight:     1.2;
+  --lh-normal:    1.5;
+  --lh-relaxed:   1.7;
+
+  --ls-tight:    -0.02em;
+  --ls-normal:    0;
+  --ls-wide:      0.02em;
+
+  /* ── Spacing (8px base) ────────────────── */
+  --space-0:   0;
+  --space-1:   0.25rem;  /*  4px */
+  --space-2:   0.5rem;   /*  8px */
+  --space-3:   0.75rem;  /* 12px */
+  --space-4:   1rem;     /* 16px */
+  --space-5:   1.25rem;  /* 20px */
+  --space-6:   1.5rem;   /* 24px */
+  --space-7:   1.75rem;  /* 28px */
+  --space-8:   2rem;     /* 32px */
+  --space-9:   2.5rem;   /* 40px */
+  --space-10:  3rem;     /* 48px */
+  --space-11:  3.5rem;   /* 56px */
+  --space-12:  4rem;     /* 64px */
+
+  /* ── Shadows ───────────────────────────── */
+  --shadow-xs:   0 1px 2px  rgba(0,0,0,0.04);
+  --shadow-sm:   0 1px 3px  rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:   0 4px 6px  rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+  --shadow-lg:   0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.03);
+  --shadow-xl:   0 20px 25px rgba(0,0,0,0.08), 0 8px 10px rgba(0,0,0,0.04);
+
+  /* ── Border Radius ─────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── Transitions ───────────────────────── */
+  --duration-fast:   150ms;
+  --duration-base:   200ms;
+  --duration-slow:   300ms;
+  --duration-slower:  500ms;
+
+  --ease-default:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in:         cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:        cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-Index Scale ─────────────────────── */
+  --z-base:      1;
+  --z-dropdown:  100;
+  --z-sticky:    200;
+  --z-sidebar:   300;
+  --z-overlay:   400;
+  --z-modal:     500;
+  --z-toast:     600;
+  --z-tooltip:   700;
+}
+
+/* ── Dark Theme ────────────────────────────── */
+[data-theme="dark"] {
+  --surface-bg:           hsl(0, 0%, 9%);
+  --surface-primary:      hsl(0, 0%, 13%);
+  --surface-secondary:    hsl(0, 0%, 11%);
+  --surface-elevated:     hsl(0, 0%, 15%);
+  --surface-overlay:      rgba(0, 0, 0, 0.65);
+
+  --text-primary:         hsl(0, 0%, 96%);
+  --text-secondary:       hsl(0, 0%, 70%);
+  --text-tertiary:        hsl(0, 0%, 55%);
+  --text-disabled:        hsl(0, 0%, 40%);
+  --text-inverse:         hsl(0, 0%, 9%);
+
+  --border-color:         hsl(0, 0%, 20%);
+  --border-color-strong:  hsl(0, 0%, 28%);
+
+  --color-primary:        hsl(var(--brand-hue), 90%, 62%);
+  --color-primary-hover:  hsl(var(--brand-hue), 90%, 55%);
+  --color-primary-light:  hsla(var(--brand-hue), 80%, 55%, 0.15);
+  --color-primary-subtle: hsla(var(--brand-hue), 80%, 55%, 0.08);
+
+  --sidebar-bg:           hsl(0, 0%, 11%);
+  --sidebar-text:         hsl(0, 0%, 65%);
+  --sidebar-text-active:  var(--color-primary);
+  --sidebar-item-hover:   hsl(0, 0%, 16%);
+  --sidebar-item-active:  var(--color-primary-light);
+
+  --topnav-bg:            hsl(0, 0%, 13%);
+  --topnav-border:        var(--border-color);
+
+  --shadow-xs:   0 1px 2px  rgba(0,0,0,0.2);
+  --shadow-sm:   0 1px 3px  rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:   0 4px 6px  rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --shadow-lg:   0 10px 15px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.15);
+  --shadow-xl:   0 20px 25px rgba(0,0,0,0.35), 0 8px 10px rgba(0,0,0,0.2);
+}
+
+/* ── Keyframes ─────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes progressShrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}

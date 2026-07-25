@@ -1,0 +1,134 @@
+/* ============================================
+   HabitFlow Pro — Modal Component
+   ============================================ */
+
+/* ── Backdrop ──────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--surface-overlay);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-base) var(--ease-default),
+              visibility var(--duration-base) var(--ease-default);
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Container ─────────────────────────────── */
+.modal {
+  background: var(--surface-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95) translateY(10px);
+  transition: transform var(--duration-slow) var(--ease-spring);
+  overflow: hidden;
+}
+
+.modal-backdrop.active .modal {
+  transform: scale(1) translateY(0);
+}
+
+/* ── Sizes ─────────────────────────────────── */
+.modal--sm { max-width: 400px; }
+.modal--lg { max-width: 680px; }
+.modal--xl { max-width: 900px; }
+.modal--full {
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
+}
+
+/* ── Header ────────────────────────────────── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  border: none;
+  background: none;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+/* ── Body ──────────────────────────────────── */
+.modal-body {
+  padding: var(--space-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-body--flush {
+  padding: 0;
+}
+
+/* ── Footer ────────────────────────────────── */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+/* ── Body Lock ─────────────────────────────── */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ── Mobile ────────────────────────────────── */
+@media (max-width: 480px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    transform: translateY(100%);
+  }
+
+  .modal-backdrop.active .modal {
+    transform: translateY(0);
+  }
+}

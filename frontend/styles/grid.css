@@ -1,0 +1,163 @@
+/* ============================================
+   HabitFlow Pro — Responsive Grid System
+   ============================================
+   12-column grid using CSS Grid with responsive
+   breakpoints.
+   ============================================ */
+
+/* ── Container ─────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+/* ── Row (12-column grid) ──────────────────── */
+.row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-6);
+}
+
+.row-dense {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+}
+
+/* ── Column Spans ──────────────────────────── */
+.col-1   { grid-column: span 1; }
+.col-2   { grid-column: span 2; }
+.col-3   { grid-column: span 3; }
+.col-4   { grid-column: span 4; }
+.col-5   { grid-column: span 5; }
+.col-6   { grid-column: span 6; }
+.col-7   { grid-column: span 7; }
+.col-8   { grid-column: span 8; }
+.col-9   { grid-column: span 9; }
+.col-10  { grid-column: span 10; }
+.col-11  { grid-column: span 11; }
+.col-12  { grid-column: span 12; }
+
+/* ── Auto Grid Layouts ─────────────────────── */
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+/* ── Responsive: sm (≥ 480px) ──────────────── */
+@media (min-width: 480px) {
+  .container {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  .sm\:col-1   { grid-column: span 1; }
+  .sm\:col-2   { grid-column: span 2; }
+  .sm\:col-3   { grid-column: span 3; }
+  .sm\:col-4   { grid-column: span 4; }
+  .sm\:col-5   { grid-column: span 5; }
+  .sm\:col-6   { grid-column: span 6; }
+  .sm\:col-7   { grid-column: span 7; }
+  .sm\:col-8   { grid-column: span 8; }
+  .sm\:col-9   { grid-column: span 9; }
+  .sm\:col-10  { grid-column: span 10; }
+  .sm\:col-11  { grid-column: span 11; }
+  .sm\:col-12  { grid-column: span 12; }
+}
+
+/* ── Responsive: md (≥ 768px) ──────────────── */
+@media (min-width: 768px) {
+  .md\:col-1   { grid-column: span 1; }
+  .md\:col-2   { grid-column: span 2; }
+  .md\:col-3   { grid-column: span 3; }
+  .md\:col-4   { grid-column: span 4; }
+  .md\:col-5   { grid-column: span 5; }
+  .md\:col-6   { grid-column: span 6; }
+  .md\:col-7   { grid-column: span 7; }
+  .md\:col-8   { grid-column: span 8; }
+  .md\:col-9   { grid-column: span 9; }
+  .md\:col-10  { grid-column: span 10; }
+  .md\:col-11  { grid-column: span 11; }
+  .md\:col-12  { grid-column: span 12; }
+
+  .md\:d-none  { display: none !important; }
+  .md\:d-block { display: block !important; }
+  .md\:d-flex  { display: flex !important; }
+}
+
+/* ── Responsive: lg (≥ 1024px) ─────────────── */
+@media (min-width: 1024px) {
+  .lg\:col-1   { grid-column: span 1; }
+  .lg\:col-2   { grid-column: span 2; }
+  .lg\:col-3   { grid-column: span 3; }
+  .lg\:col-4   { grid-column: span 4; }
+  .lg\:col-5   { grid-column: span 5; }
+  .lg\:col-6   { grid-column: span 6; }
+  .lg\:col-7   { grid-column: span 7; }
+  .lg\:col-8   { grid-column: span 8; }
+  .lg\:col-9   { grid-column: span 9; }
+  .lg\:col-10  { grid-column: span 10; }
+  .lg\:col-11  { grid-column: span 11; }
+  .lg\:col-12  { grid-column: span 12; }
+
+  .lg\:d-none  { display: none !important; }
+  .lg\:d-block { display: block !important; }
+  .lg\:d-flex  { display: flex !important; }
+}
+
+/* ── Responsive: xl (≥ 1280px) ─────────────── */
+@media (min-width: 1280px) {
+  .xl\:col-1   { grid-column: span 1; }
+  .xl\:col-2   { grid-column: span 2; }
+  .xl\:col-3   { grid-column: span 3; }
+  .xl\:col-4   { grid-column: span 4; }
+  .xl\:col-5   { grid-column: span 5; }
+  .xl\:col-6   { grid-column: span 6; }
+  .xl\:col-7   { grid-column: span 7; }
+  .xl\:col-8   { grid-column: span 8; }
+  .xl\:col-9   { grid-column: span 9; }
+  .xl\:col-10  { grid-column: span 10; }
+  .xl\:col-11  { grid-column: span 11; }
+  .xl\:col-12  { grid-column: span 12; }
+}
+
+/* ── Responsive Visibility ─────────────────── */
+/* Hide on mobile, show on desktop */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+  .hide-desktop {
+    display: none !important;
+  }
+}

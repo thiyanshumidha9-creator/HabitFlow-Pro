@@ -1,0 +1,264 @@
+/* ============================================
+   HabitFlow Pro — Sidebar Component
+   ============================================ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-sidebar);
+  transition: width var(--duration-slow) var(--ease-default),
+              transform var(--duration-slow) var(--ease-default);
+  overflow: hidden;
+}
+
+/* ── Brand ─────────────────────────────────── */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5);
+  height: var(--topnav-height);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.sidebar-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary), hsl(var(--brand-hue), 80%, 62%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  letter-spacing: var(--ls-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+/* ── Navigation ────────────────────────────── */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-3);
+}
+
+.sidebar-section {
+  margin-bottom: var(--space-4);
+}
+
+.sidebar-section-title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: var(--space-2) var(--space-3);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--sidebar-item-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+  background: var(--sidebar-item-active);
+  color: var(--sidebar-text-active);
+  font-weight: var(--fw-semibold);
+}
+
+.sidebar-nav-item-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-nav-item-label {
+  overflow: hidden;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+.sidebar-nav-item-badge {
+  margin-left: auto;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+}
+
+/* ── Footer ────────────────────────────────── */
+.sidebar-footer {
+  padding: var(--space-4) var(--space-3);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  border: none;
+  background: none;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--sidebar-item-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-collapse-btn-label {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+/* ── Collapsed State (Desktop) ─────────────── */
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.sidebar.collapsed .sidebar-brand-text,
+.sidebar.collapsed .sidebar-section-title,
+.sidebar.collapsed .sidebar-nav-item-label,
+.sidebar.collapsed .sidebar-nav-item-badge,
+.sidebar.collapsed .sidebar-collapse-btn-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.sidebar.collapsed .sidebar-nav-item {
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  padding: var(--space-5) var(--space-3);
+}
+
+.sidebar.collapsed .sidebar-collapse-btn {
+  justify-content: center;
+}
+
+/* ── Tooltip on Collapse ───────────────────── */
+.sidebar.collapsed .sidebar-nav-item[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-gray-900);
+  color: var(--color-white);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-default);
+  z-index: var(--z-tooltip);
+}
+
+.sidebar.collapsed .sidebar-nav-item[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* ── Mobile Overlay ────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--surface-overlay);
+  z-index: calc(var(--z-sidebar) - 1);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* ── Mobile ────────────────────────────────── */
+@media (max-width: 767px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: var(--sidebar-width);
+  }
+
+  .sidebar.collapsed .sidebar-brand-text,
+  .sidebar.collapsed .sidebar-section-title,
+  .sidebar.collapsed .sidebar-nav-item-label,
+  .sidebar.collapsed .sidebar-nav-item-badge,
+  .sidebar.collapsed .sidebar-collapse-btn-label {
+    opacity: 1;
+    width: auto;
+    pointer-events: auto;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item {
+    justify-content: flex-start;
+    padding: var(--space-3);
+  }
+}

@@ -1,0 +1,74 @@
+/* ============================================
+   HabitFlow Pro — Main Stylesheet
+   ============================================
+   Master import file. Load order matters:
+   1. Variables (tokens)
+   2. Reset
+   3. Typography
+   4. Grid
+   5. Utilities
+   6. Component styles
+   ============================================ */
+
+/* ── Foundation ────────────────────────────── */
+@import url('./variables.css');
+@import url('./reset.css');
+@import url('./typography.css');
+@import url('./grid.css');
+@import url('./utilities.css');
+
+/* ── Component Styles ──────────────────────── */
+@import url('./components/sidebar.css');
+@import url('./components/topnav.css');
+@import url('./components/footer.css');
+@import url('./components/card.css');
+@import url('./components/button.css');
+@import url('./components/input.css');
+@import url('./components/modal.css');
+@import url('./components/toast.css');
+@import url('./components/loader.css');
+@import url('./components/empty-state.css');
+@import url('./components/error-boundary.css');
+
+/* ── Layout ────────────────────────────────── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left var(--duration-slow) var(--ease-default);
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--space-6);
+  animation: fadeIn var(--duration-base) var(--ease-out);
+}
+
+/* Desktop: offset content by sidebar width */
+@media (min-width: 768px) {
+  .app-main {
+    margin-left: var(--sidebar-width);
+  }
+
+  .app-main.sidebar-collapsed {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+}
+
+@media (max-width: 767px) {
+  .app-content {
+    padding: var(--space-4);
+  }
+}
+
+/* ── Page Transition ───────────────────────── */
+.page-enter {
+  animation: slideUp var(--duration-slow) var(--ease-out);
+}

@@ -1,0 +1,180 @@
+/* ============================================
+   HabitFlow Pro — Button Component
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-family);
+  font-weight: var(--fw-medium);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: all var(--duration-fast) var(--ease-default);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Sizes ─────────────────────────────────── */
+.btn--sm {
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn--md {
+  height: 40px;
+  padding: 0 var(--space-5);
+  font-size: var(--fs-base);
+}
+
+.btn--lg {
+  height: 48px;
+  padding: 0 var(--space-6);
+  font-size: var(--fs-md);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Primary ───────────────────────────────── */
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 4px 12px hsla(var(--brand-hue), 90%, 50%, 0.3);
+}
+
+/* ── Secondary ─────────────────────────────── */
+.btn--secondary {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn--secondary:hover {
+  background: var(--surface-primary);
+  border-color: var(--border-color-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Ghost ─────────────────────────────────── */
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn--ghost:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+/* ── Danger ────────────────────────────────── */
+.btn--danger {
+  background: var(--color-danger);
+  color: var(--color-white);
+  border-color: var(--color-danger);
+}
+
+.btn--danger:hover {
+  background: hsl(0, 84%, 52%);
+  box-shadow: 0 4px 12px hsla(0, 84%, 60%, 0.3);
+}
+
+/* ── Outline ───────────────────────────────── */
+.btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn--outline:hover {
+  background: var(--color-primary-light);
+}
+
+/* ── Icon Only ─────────────────────────────── */
+.btn--icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
+.btn--icon.btn--sm {
+  width: 32px;
+  height: 32px;
+}
+
+.btn--icon.btn--lg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ── Full Width ────────────────────────────── */
+.btn--full {
+  width: 100%;
+}
+
+/* ── Loading State ─────────────────────────── */
+.btn.loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin 0.6s linear infinite;
+  /* Reset color to be visible */
+  border-color: var(--color-white);
+  border-right-color: transparent;
+}
+
+.btn--secondary.loading::after,
+.btn--ghost.loading::after {
+  border-color: var(--color-primary);
+  border-right-color: transparent;
+}
+
+/* ── Icon inside button ────────────────────── */
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn--sm .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.btn--lg .btn-icon {
+  width: 20px;
+  height: 20px;
+}

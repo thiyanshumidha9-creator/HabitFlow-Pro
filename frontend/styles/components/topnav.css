@@ -1,0 +1,188 @@
+/* ============================================
+   HabitFlow Pro — Top Navigation Component
+   ============================================ */
+
+.topnav {
+  position: sticky;
+  top: 0;
+  height: var(--topnav-height);
+  background: var(--topnav-bg);
+  border-bottom: 1px solid var(--topnav-border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-6);
+  gap: var(--space-4);
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Hamburger (mobile only) ───────────────── */
+.topnav-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  border: none;
+  background: none;
+  flex-shrink: 0;
+}
+
+.topnav-hamburger:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+@media (max-width: 767px) {
+  .topnav {
+    padding: 0 var(--space-4);
+  }
+
+  .topnav-hamburger {
+    display: flex;
+  }
+}
+
+/* ── Page Info ─────────────────────────────── */
+.topnav-page-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.topnav-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topnav-breadcrumb {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.topnav-breadcrumb-separator {
+  color: var(--text-disabled);
+}
+
+/* ── Spacer ────────────────────────────────── */
+.topnav-spacer {
+  flex: 1;
+}
+
+/* ── Actions ───────────────────────────────── */
+.topnav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ── Icon Button ───────────────────────────── */
+.topnav-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  border: none;
+  background: none;
+  position: relative;
+}
+
+.topnav-icon-btn:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+.topnav-icon-btn:active {
+  transform: scale(0.95);
+}
+
+.topnav-icon-btn .notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-danger);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--topnav-bg);
+}
+
+/* ── User Avatar ───────────────────────────── */
+.topnav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary), hsl(var(--brand-hue), 80%, 62%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-default);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.topnav-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* ── Theme Toggle ──────────────────────────── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  border: none;
+  background: none;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-secondary);
+  color: var(--color-warning);
+}
+
+.theme-toggle:active {
+  transform: scale(0.92) rotate(15deg);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  transition: opacity var(--duration-fast) var(--ease-default),
+              transform var(--duration-base) var(--ease-spring);
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .icon-moon,
+:root:not([data-theme]) .theme-toggle .icon-moon {
+  display: none;
+}
