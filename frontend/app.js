@@ -7,8 +7,13 @@ import { themeManager } from './utils/theme.js';
 import { modalManager } from './components/modal.js';
 import { toastManager } from './components/toast.js';
 import { appLayout } from './layouts/app-layout.js';
+import { authService } from './services/auth-service.js';
 
 // Import pages
+import * as loginPage from './pages/login.js';
+import * as signupPage from './pages/signup.js';
+import * as forgotPasswordPage from './pages/forgot-password.js';
+import * as resetPasswordPage from './pages/reset-password.js';
 import * as dashboardPage from './pages/dashboard.js';
 import * as habitsPage from './pages/habits.js';
 import * as calendarPage from './pages/calendar.js';
@@ -16,12 +21,13 @@ import * as analyticsPage from './pages/analytics.js';
 import * as journalPage from './pages/journal.js';
 import * as achievementsPage from './pages/achievements.js';
 import * as settingsPage from './pages/settings.js';
+import * as profilePage from './pages/profile.js';
 
 // PWA installation helper
 let deferredPrompt = null;
 
 // Initialize app
-function init() {
+async function init() {
   console.log('[HabitFlow] Bootstrapping UI foundation...');
 
   // 1. Initialize core utilities
@@ -37,53 +43,101 @@ function init() {
   }
   appLayout.mount(root);
 
-  // 3. Register pages with SPA router
+  // 3. Auto-Login/Check Auth session
+  await authService.checkAuth();
+
+  // 4. Register pages with SPA router
   const contentContainer = appLayout.getContentContainer();
 
+  // Guard wrappers
+  const guardProtected = (title, renderFn) => ({
+    title,
+    load: () => {
+      if (!authService.isAuthenticated) {
+        router.navigate('/login');
+      } else {
+        appLayout.setAuthMode(false);
+        renderFn(contentContainer);
+        // Sync topnav avatar letter
+        const avatar = document.getElementById('topnav-avatar');
+        if (avatar && authService.currentUser) {
+          avatar.textContent = (authService.currentUser.full_name || 'U').charAt(0).toUpperCase();
+        }
+      }
+    }
+  });
+
+  const guardPublic = (title, renderFn) => ({
+    title,
+    load: () => {
+      if (authService.isAuthenticated) {
+        router.navigate('/dashboard');
+      } else {
+        appLayout.setAuthMode(true);
+        renderFn(contentContainer);
+      }
+    }
+  });
+
   router
-    .register('/dashboard', {
-      title: 'Dashboard',
-      load: () => dashboardPage.render(contentContainer),
-    })
-    .register('/habits', {
-      title: 'Habits',
-      load: () => habitsPage.render(contentContainer),
-    })
-    .register('/calendar', {
-      title: 'Calendar',
-      load: () => calendarPage.render(contentContainer),
-    })
-    .register('/analytics', {
-      title: 'Analytics',
-      load: () => analyticsPage.render(contentContainer),
-    })
-    .register('/journal', {
-      title: 'Journal',
-      load: () => journalPage.render(contentContainer),
-    })
-    .register('/achievements', {
-      title: 'Achievements',
-      load: () => achievementsPage.render(contentContainer),
-    })
-    .register('/settings', {
-      title: 'Settings',
-      load: () => settingsPage.render(contentContainer),
-    })
+    .register('/login', guardPublic('Sign In', loginPage.render))
+    .register('/signup', guardPublic('Create Account', signupPage.render))
+    .register('/forgot-password', guardPublic('Forgot Password', forgotPasswordPage.render))
+    .register('/reset-password', guardPublic('Reset Password', resetPasswordPage.render))
+    
+    .register('/dashboard', guardProtected('Dashboard', dashboardPage.render))
+    .register('/habits', guardProtected('Habits', habitsPage.render))
+    .register('/calendar', guardProtected('Calendar', calendarPage.render))
+    .register('/analytics', guardProtected('Analytics', analyticsPage.render))
+    .register('/journal', guardProtected('Journal', journalPage.render))
+    .register('/achievements', guardProtected('Achievements', achievementsPage.render))
+    .register('/settings', guardProtected('Settings', settingsPage.render))
+    .register('/profile', guardProtected('Profile', profilePage.render))
     .setDefault('/dashboard');
 
-  // 4. Synchronize router state with layout UI
+  // 5. Synchronize router state with layout UI
   router.onChange(({ path, title }) => {
     appLayout.setPageTitle(title);
     appLayout.setActiveRoute(path);
   });
 
-  // 5. Start the router
+  // 6. Listen for auth changes to adjust routing or layout immediately
+  window.addEventListener('auth:statechange', (e) => {
+    const { isAuthenticated } = e.detail;
+    const current = router.currentPath;
+    const isPublic = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(current);
+    
+    if (isAuthenticated) {
+      // Update avatar letter immediately
+      const avatar = document.getElementById('topnav-avatar');
+      if (avatar && authService.currentUser) {
+        avatar.textContent = (authService.currentUser.full_name || 'U').charAt(0).toUpperCase();
+      }
+      
+      if (isPublic) {
+        router.navigate('/dashboard');
+      }
+    } else {
+      if (!isPublic) {
+        router.navigate('/login');
+      }
+    }
+  });
+
+  // 7. Bind global click delegation for navigation triggers
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#topnav-avatar')) {
+      router.navigate('/profile');
+    }
+  });
+
+  // 8. Start the router
   router.start();
 
-  // 6. Register Service Worker for PWA installation & offline caching
+  // 9. Register Service Worker for PWA installation & offline caching
   registerServiceWorker();
 
-  // 7. Setup PWA installability prompt listener
+  // 10. Setup PWA installability prompt listener
   setupPWAInstallation();
 }
 

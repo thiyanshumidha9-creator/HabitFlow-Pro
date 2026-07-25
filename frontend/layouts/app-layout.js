@@ -83,6 +83,31 @@ class AppLayout {
   }
 
   /**
+   * Toggle between App Mode (navigation/sidebar visible) and Auth Mode (login/signup screens centered).
+   * @param {boolean} isAuthPage
+   */
+  setAuthMode(isAuthPage) {
+    if (!this._mainEl) return;
+
+    const layout = document.getElementById('app-layout');
+
+    if (isAuthPage) {
+      if (layout) layout.classList.add('auth-layout');
+      this._mainEl.style.marginLeft = '0';
+      if (this._sidebarContainer) this._sidebarContainer.style.display = 'none';
+      if (this._topnavContainer) this._topnavContainer.style.display = 'none';
+      if (this._footerContainer) this._footerContainer.style.display = 'none';
+    } else {
+      if (layout) layout.classList.remove('auth-layout');
+      this._mainEl.style.marginLeft = '';
+      this._mainEl.className = sidebar.isCollapsed ? 'app-main sidebar-collapsed' : 'app-main';
+      if (this._sidebarContainer) this._sidebarContainer.style.display = '';
+      if (this._topnavContainer) this._topnavContainer.style.display = '';
+      if (this._footerContainer) this._footerContainer.style.display = '';
+    }
+  }
+
+  /**
    * Set the active sidebar item.
    * @param {string} route
    */
