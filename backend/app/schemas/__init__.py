@@ -13,3 +13,4 @@ from app.schemas.auth import (  # noqa: F401
 )
 from app.schemas.common import ErrorDetail, ErrorResponse, SuccessResponse  # noqa: F401
 from app.schemas.user import UserResponse  # noqa: F401
+from app.schemas.habit import HabitCreate, HabitUpdate, HabitResponse  # noqa: F401

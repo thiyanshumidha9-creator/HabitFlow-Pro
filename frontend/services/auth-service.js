@@ -94,6 +94,24 @@ class AuthService {
     return user;
   }
 
+  async refreshProfile() {
+    const payload = await api.get('/auth/me');
+    this._currentUser = payload.data.user;
+    this._notifyStateChange();
+    return this._currentUser;
+  }
+
+  async updateProfile(changes) {
+    const payload = await api.put('/profile', changes);
+    this._currentUser = payload.data.user;
+    this._notifyStateChange();
+    return this._currentUser;
+  }
+
+  async changePassword(currentPassword, newPassword) {
+    return api.put('/profile/password', { current_password: currentPassword, new_password: newPassword });
+  }
+
   /**
    * Log out the current user session (graceful API notification).
    * @returns {Promise<void>}
@@ -134,8 +152,9 @@ class AuthService {
       this._currentUser = payload.data.user;
     } catch (e) {
       console.warn('[Auth Service] Automatic session validation failed:', e.message);
-      this._currentUser = null;
-      tokenService.clear();
+      const cachedUser = (() => { try { return JSON.parse(localStorage.getItem('habitflow_cached_user') || 'null'); } catch { return null; } })();
+      if (!navigator.onLine && cachedUser) this._currentUser = cachedUser;
+      else { this._currentUser = null; tokenService.clear(); }
     } finally {
       this._isInitialized = true;
       this._notifyStateChange();
@@ -157,6 +176,8 @@ class AuthService {
    * @private
    */
   _notifyStateChange() {
+    if (this._currentUser) localStorage.setItem('habitflow_cached_user', JSON.stringify(this._currentUser));
+    else if (navigator.onLine) localStorage.removeItem('habitflow_cached_user');
     const event = new CustomEvent('auth:statechange', {
       detail: {
         isAuthenticated: this.isAuthenticated,

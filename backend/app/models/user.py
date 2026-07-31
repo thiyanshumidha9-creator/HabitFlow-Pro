@@ -145,4 +145,7 @@ class RefreshToken(Base, UUIDMixin, TimestampMixin):
     @property
     def is_expired(self) -> bool:
         """Check whether this token has passed its expiry time."""
-        return datetime.now(timezone.utc) > self.expires_at
+        expires_at = self.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) > expires_at

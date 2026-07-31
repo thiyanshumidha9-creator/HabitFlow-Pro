@@ -5,7 +5,8 @@
    and installability checks.
    ============================================ */
 
-const CACHE_NAME = 'habitflow-v1';
+const CACHE_NAME = 'habitflow-v7';
+const API_CACHE_NAME = 'habitflow-api-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -29,6 +30,10 @@ const ASSETS_TO_CACHE = [
   './styles/components/loader.css',
   './styles/components/empty-state.css',
   './styles/components/error-boundary.css',
+  './styles/components/analytics.css',
+  './styles/components/sprint5.css',
+  './styles/components/sprint6.css',
+  './styles/components/profile-completion.css',
   './utils/dom.js',
   './utils/theme.js',
   './utils/icons.js',
@@ -37,6 +42,9 @@ const ASSETS_TO_CACHE = [
   './services/api.js',
   './services/validation.js',
   './services/auth-service.js',
+  './services/settings-service.js',
+  './services/data-service.js',
+  './services/offline-service.js',
   './layouts/app-layout.js',
   './components/sidebar.js',
   './components/topnav.js',
@@ -87,7 +95,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
+          if (cache !== CACHE_NAME && cache !== API_CACHE_NAME) {
             console.log('[Service Worker] Removing old cache:', cache);
             return caches.delete(cache);
           }
@@ -102,6 +110,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  // Cache authenticated API GET responses separately; the frontend also keeps a local payload cache.
+  if (url.pathname.startsWith('/api/v1/')) {
+    event.respondWith(fetch(event.request).then(response => {
+      if (response.ok) caches.open(API_CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+      return response;
+    }).catch(() => caches.match(event.request).then(hit => hit || new Response(JSON.stringify({ success:false, message:'Offline data is unavailable.' }), { status:503, headers:{'Content-Type':'application/json'} }))));
+    return;
+  }
 
   // Skip cross-origin or CDN scripts like unpkg
   if (!event.request.url.startsWith(self.location.origin)) {

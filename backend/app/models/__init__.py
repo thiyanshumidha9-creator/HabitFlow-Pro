@@ -8,3 +8,7 @@ from a single import.
 
 from app.models.base import Base  # noqa: F401
 from app.models.user import RefreshToken, User  # noqa: F401
+from app.models.habit import Habit  # noqa: F401
+from app.models.journal import Journal  # noqa: F401
+from app.models.habit_log import HabitLog  # noqa: F401
+

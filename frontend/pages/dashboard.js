@@ -1,87 +1,29 @@
-/* ============================================
-   HabitFlow Pro — Dashboard Page (Placeholder)
-   ============================================ */
-
-import { createCard } from '../components/card.js';
+/* HabitFlow Pro — Sprint 5 Intelligent Dashboard */
+import { api } from '../services/api.js';
+import { modalManager } from '../components/modal.js';
+import { toastManager } from '../components/toast.js';
 import { renderIcons } from '../utils/icons.js';
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
-/**
- * Render the Dashboard placeholder page.
- * @param {Element} container
- */
-export function render(container) {
-  container.innerHTML = `
-    <div class="page-enter">
-      <div class="d-flex items-center justify-between mb-6">
-        <div>
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">Welcome back! Here's your overview.</p>
-        </div>
-      </div>
-
-      <div class="grid-auto-fill">
-        ${createCard({
-          variant: 'elevated',
-          title: 'Today\'s Progress',
-          subtitle: 'Track your daily habits',
-          body: `
-            <div class="empty-state empty-state--compact">
-              <div class="empty-state-icon">
-                <i data-lucide="trending-up" style="width:100%;height:100%;"></i>
-              </div>
-              <h3 class="empty-state-title">Coming Soon</h3>
-              <p class="empty-state-description">Daily progress tracking will appear here.</p>
-            </div>
-          `,
-        })}
-
-        ${createCard({
-          variant: 'elevated',
-          title: 'Active Streaks',
-          subtitle: 'Keep the momentum going',
-          body: `
-            <div class="empty-state empty-state--compact">
-              <div class="empty-state-icon">
-                <i data-lucide="flame" style="width:100%;height:100%;"></i>
-              </div>
-              <h3 class="empty-state-title">Coming Soon</h3>
-              <p class="empty-state-description">Your habit streaks will be displayed here.</p>
-            </div>
-          `,
-        })}
-
-        ${createCard({
-          variant: 'elevated',
-          title: 'Weekly Summary',
-          subtitle: 'Your 7-day overview',
-          body: `
-            <div class="empty-state empty-state--compact">
-              <div class="empty-state-icon">
-                <i data-lucide="bar-chart-3" style="width:100%;height:100%;"></i>
-              </div>
-              <h3 class="empty-state-title">Coming Soon</h3>
-              <p class="empty-state-description">Weekly analytics chart will render here.</p>
-            </div>
-          `,
-        })}
-
-        ${createCard({
-          variant: 'elevated',
-          title: 'Recent Journal',
-          subtitle: 'Latest reflections',
-          body: `
-            <div class="empty-state empty-state--compact">
-              <div class="empty-state-icon">
-                <i data-lucide="book-open" style="width:100%;height:100%;"></i>
-              </div>
-              <h3 class="empty-state-title">Coming Soon</h3>
-              <p class="empty-state-description">Journal entries will show here.</p>
-            </div>
-          `,
-        })}
-      </div>
-    </div>
-  `;
-
-  renderIcons();
+export async function render(container, showLoader = true) {
+  if (showLoader) container.innerHTML=`<div class="page-loader"><div class="spinner spinner--lg"></div><div class="page-loader-text">Loading dashboard...</div></div>`;
+  try { const {data}=await api.getCached('/dashboard/summary'); renderContent(container,data); }
+  catch(error){toastManager.error(error.message||'Unable to load dashboard.','Dashboard Error');container.innerHTML=`<div class="empty-state"><h3 class="empty-state-title">Dashboard unavailable</h3><p class="empty-state-description">Your previous data remains safe.</p><button class="btn btn--primary btn--sm" id="dashboard-retry">Retry</button></div>`;container.querySelector('#dashboard-retry')?.addEventListener('click',()=>render(container));}
 }
+function metric(title,value,subtitle,icon){return `<article class="stat-card dashboard-stat-card"><div class="dashboard-stat-top"><div class="stat-card-icon"><i data-lucide="${icon}"></i></div><span class="dashboard-stat-trend"><i data-lucide="trending-up"></i></span></div><strong class="stat-card-value">${value}</strong><div class="stat-card-label">${title}</div><div class="dashboard-stat-subtitle">${subtitle}</div></article>`}
+function renderContent(container,data){const s=data.summary, today=data.today_habits, completed=today.filter(h=>h.completed).length;
+ container.innerHTML=`<div class="page-enter dashboard-page">
+ <header class="dashboard-header"><div><div class="dashboard-eyebrow"><span></span>Productivity overview</div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Welcome back! Here is your live productivity overview.</p></div><button class="btn btn--primary btn--sm dashboard-create-btn" id="dashboard-create-habit-btn"><i data-lucide="plus"></i><span>Create Habit</span></button></header>
+ <section class="dashboard-section dashboard-summary" aria-labelledby="dashboard-summary-title"><div class="dashboard-section-heading"><div><h2 id="dashboard-summary-title" class="dashboard-section-title">Dashboard Summary</h2><p class="dashboard-section-description">A quick look at your routines and consistency.</p></div><span class="dashboard-section-icon"><i data-lucide="bar-chart-3"></i></span></div><div class="stats-grid">${metric("Today's Habits",`${completed}/${today.length}`,`${s.completed_today} completed today`,'circle-check')}${metric("Today's Journal",data.today_journal?'Written':'Not written',data.today_journal?.title||'Add a daily reflection','book-open')}${metric('Current Streak',`${s.current_streak} days`,'Keep your momentum','flame')}${metric('Longest Streak',`${s.longest_streak} days`,'Personal best','award')}${metric('Weekly Progress',`${s.weekly_completion_pct}%`,'Past 7 days','calendar-days')}${metric('Monthly Progress',`${s.monthly_completion_pct}%`,'Current month','calendar-range')}${metric('Completion Rate',`${s.completion_rate}%`,'All-time daily average','percent')}${metric('Productivity Score',s.productivity_score,'Habits + journal consistency','gauge')}</div></section>
+ <div class="dashboard-primary-grid">
+ <section class="dashboard-panel dashboard-habits-panel" aria-labelledby="today-habits-title"><div class="dashboard-panel-header"><div><h2 id="today-habits-title" class="dashboard-section-title">Today's Habits</h2><p class="dashboard-section-description">${completed} of ${today.length} completed today</p></div><span class="dashboard-count-badge">${completed}/${today.length}</span></div><div class="dashboard-panel-body habit-card-list">${today.length?today.map(h=>`<button class="habit-card dashboard-toggle ${h.completed?'is-complete':''}" data-id="${h.id}" aria-label="Toggle ${escapeHtml(h.name)}"><span class="habit-card-icon"><i data-lucide="${h.completed?'circle-check':'circle'}"></i></span><span class="habit-card-content"><span class="habit-card-heading"><strong>${escapeHtml(h.name)}</strong><span class="habit-completion-indicator"><span></span>${h.completed?'Completed Today':'Ready for today'}</span></span><span class="habit-card-meta"><span class="habit-streak-badge"><i data-lucide="flame"></i>${h.streak} Day Streak</span><span class="habit-progress-label">${h.completed?'100%':'0%'}</span></span><span class="habit-progress-track" aria-hidden="true"><span style="width:${h.completed?'100':'0'}%"></span></span></span></button>`).join(''):'<div class="dashboard-empty"><i data-lucide="circle-check"></i><p>No active habits today.</p></div>'}</div></section>
+ <aside class="dashboard-side-stack">
+ <section class="dashboard-panel dashboard-journal-panel" aria-labelledby="journal-preview-title"><div class="dashboard-panel-header"><div><h2 id="journal-preview-title" class="dashboard-section-title">Journal Preview</h2><p class="dashboard-section-description">Today's reflection</p></div><span class="dashboard-section-icon journal"><i data-lucide="book-open"></i></span></div><div class="dashboard-panel-body">${data.today_journal?`<article class="journal-preview"><div class="journal-preview-icon"><i data-lucide="book-open"></i></div><div><span class="journal-status"><span></span>Written today</span><h3>${escapeHtml(data.today_journal.title)}</h3><p>Your daily reflection is saved and contributing to your consistency.</p></div></article>`:`<article class="journal-preview journal-preview-empty"><div class="journal-preview-icon"><i data-lucide="book-open"></i></div><div><span class="journal-status"><span></span>Not written</span><h3>Make space to reflect</h3><p>Add a daily reflection to capture your progress and stay mindful.</p></div></article>`}</div></section>
+ <section class="dashboard-panel dashboard-upcoming-panel" aria-labelledby="upcoming-habits-title"><div class="dashboard-panel-header"><div><h2 id="upcoming-habits-title" class="dashboard-section-title">Upcoming Habits</h2><p class="dashboard-section-description">Starting in the next 7 days</p></div><span class="dashboard-section-icon calendar"><i data-lucide="calendar"></i></span></div><div class="dashboard-panel-body upcoming-card-list">${data.upcoming_habits.length?data.upcoming_habits.map(h=>`<article class="upcoming-card"><span class="upcoming-card-icon"><i data-lucide="calendar"></i></span><span class="upcoming-card-content"><strong>${escapeHtml(h.name)}</strong><span class="upcoming-card-details"><span><small>Starts on</small>${h.start_date}</span><span><small>Repeat</small>Scheduled</span></span></span></article>`).join(''):'<div class="dashboard-empty dashboard-empty-compact"><i data-lucide="calendar"></i><p>No habits starting in the next 7 days.</p></div>'}</div></section>
+ </aside></div>
+ <section class="dashboard-panel dashboard-activity-panel" aria-labelledby="recent-activity-title"><div class="dashboard-panel-header"><div><h2 id="recent-activity-title" class="dashboard-section-title">Recent Activity</h2><p class="dashboard-section-description">Your latest habit and journal updates</p></div><span class="dashboard-section-icon activity"><i data-lucide="activity"></i></span></div><div class="dashboard-panel-body dashboard-timeline">${data.recent_activity.length?data.recent_activity.map(item=>`<article class="timeline-item"><span class="timeline-marker ${item.type==='habit'?'habit':'journal'}"><i data-lucide="${item.type==='habit'?'circle-check':'book-open'}"></i></span><div class="timeline-content"><div><h3>${item.type==='habit'?'Habit Completed':'Journal Entry'}</h3><p>${escapeHtml(item.title)}</p></div><time><i data-lucide="clock-3"></i>${item.date}</time></div></article>`).join(''):'<div class="dashboard-empty"><i data-lucide="activity"></i><p>Activity will appear here.</p></div>'}</div></section>
+ <section class="dashboard-section dashboard-insights" aria-labelledby="insights-title"><div class="dashboard-section-heading"><div><h2 id="insights-title" class="dashboard-section-title">Intelligent Insights</h2><p class="dashboard-section-description">Patterns detected from your habit history.</p></div><a href="#/analytics" class="btn btn--outline btn--sm dashboard-analytics-btn"><i data-lucide="bar-chart-3"></i>Full Analytics</a></div><div class="insights-grid">${[['Most productive day',data.insights.most_productive_weekday,'calendar-check'],['Most completed habit',data.insights.most_completed_habit,'circle-check'],['Weekly consistency',`${data.insights.weekly_consistency}%`,'chart-no-axes-combined'],['Longest inactive period',`${data.insights.longest_inactive_period} days`,'clock-3']].map(([label,value,icon])=>`<article class="insight-item dashboard-insight-card"><div class="insight-icon"><i data-lucide="${icon}"></i></div><div><div class="insight-label">${label}</div><div class="insight-value">${escapeHtml(value)}</div></div></article>`).join('')}</div></section></div>`;
+ renderIcons(); bind(container);
+}
+function bind(container){container.querySelectorAll('.dashboard-toggle').forEach(btn=>btn.addEventListener('click',async()=>{const snapshot=container.innerHTML;btn.disabled=true;try{await api.post(`/habits/${btn.dataset.id}/toggle`);window.dispatchEvent(new CustomEvent('habitflow:data-changed',{detail:{type:'habit'}}));toastManager.success('Habit status updated.','Success');render(container,false);}catch(error){container.innerHTML=snapshot;renderIcons();bind(container);toastManager.error(error.message||'Unable to update habit.','Error');}}));
+ container.querySelector('#dashboard-create-habit-btn')?.addEventListener('click',()=>{window.location.hash='#/habits';});}

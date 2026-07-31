@@ -1,0 +1,41 @@
+
+/* Profile completion and shared interaction refinements */
+.sr-only { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+.is-hidden { display:none!important; }
+[hidden] { display:none!important; }
+.page-header { padding-bottom:var(--space-1); }
+.section-heading { display:flex; flex-direction:column; gap:var(--space-1); }
+.profile-account-card { overflow:visible; }
+.profile-main-column { display:flex; flex-direction:column; gap:var(--space-6); min-width:0; }
+.profile-avatar-wrap { position:relative; display:inline-flex; flex:0 0 auto; }
+.profile-avatar { width:104px; height:104px; border:3px solid var(--surface-primary); box-shadow:0 0 0 1px var(--border-color-strong), var(--shadow-md); font-size:var(--fs-3xl); letter-spacing:-.04em; }
+.profile-photo-button { position:absolute; right:-10px; bottom:-8px; display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:6px 10px; border:1px solid var(--border-color-strong); border-radius:var(--radius-full); background:var(--surface-elevated); color:var(--text-primary); box-shadow:var(--shadow-md); font-size:var(--fs-xs); font-weight:var(--fw-semibold); cursor:pointer; transition:transform var(--duration-fast),border-color var(--duration-fast),background var(--duration-fast); white-space:nowrap; }
+.profile-photo-button:hover { transform:translateY(-1px); border-color:var(--color-primary); background:var(--surface-primary); }
+.profile-photo-button:focus-visible { outline:3px solid var(--color-primary-light); outline-offset:2px; }
+.profile-photo-button svg { width:15px; height:15px; color:var(--color-primary); }
+.profile-identity-copy { min-width:0; }
+.profile-photo-actions { display:flex; flex-wrap:wrap; gap:var(--space-2); margin-top:var(--space-5); }
+.profile-photo-helper { margin-top:var(--space-3); color:var(--text-tertiary); }
+.profile-form { display:flex; flex-direction:column; gap:var(--space-4); }
+.profile-form-actions { display:flex; flex-wrap:wrap; gap:var(--space-3); }
+.profile-stat-card { transition:transform var(--duration-base),border-color var(--duration-base),box-shadow var(--duration-base); }
+.profile-stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.profile-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.profile-info-value.text-success,.text-success { color:var(--color-success)!important; }
+.profile-info-value.text-danger,.text-danger { color:var(--color-danger)!important; }
+
+/* Consistent polish across data-heavy pages */
+.card,.btn,.form-input,.settings-row,.habit-card,.journal-entry-card,.achievement-item,.cal-day-cell { transition-duration:var(--duration-base); }
+.card-header-title,.analytics-section-title { color:var(--text-primary); font-weight:var(--fw-semibold); }
+.card-header-subtitle,.form-helper { color:var(--text-secondary); }
+.progress-track { overflow:hidden; border-radius:var(--radius-full); background:var(--surface-secondary); border:1px solid var(--border-color); }
+.progress-fill { border-radius:inherit; transition:width var(--duration-slow) var(--ease-out); }
+.empty-state { border:1px dashed var(--border-color-strong); border-radius:var(--radius-lg); background:var(--surface-secondary); }
+.habit-card,.journal-entry-card,.achievement-item { min-width:0; }
+.habit-card .card-body,.journal-entry-card .card-body { height:100%; }
+input[type="checkbox"] { accent-color:var(--color-primary); }
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible { outline:3px solid var(--color-primary-light); outline-offset:2px; }
+
+@media (max-width:1100px) { .profile-stats { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media (max-width:767px) { .profile-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .profile-avatar { width:92px;height:92px; } }
+@media (max-width:420px) { .profile-stats { grid-template-columns:1fr; } .profile-identity { align-items:flex-start; } .profile-photo-button span { display:none; } .profile-photo-button { width:34px; justify-content:center; padding:0; right:-4px; } .profile-form-actions .btn { width:100%; } }

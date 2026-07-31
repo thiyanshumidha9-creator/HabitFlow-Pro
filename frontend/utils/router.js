@@ -58,6 +58,7 @@ class Router {
    * @param {string} path
    */
   navigate(path) {
+    if (this._parsePath() === path && this._currentRoute === path) return;
     window.location.hash = `#${path}`;
   }
 

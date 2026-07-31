@@ -32,7 +32,8 @@ export function render(container) {
       <div class="mt-4">
         ${createLoadingButton({
           text: 'Update Password',
-          id: 'reset-submit-btn'
+          id: 'reset-submit-btn',
+          type: 'submit'
         })}
       </div>
     </form>

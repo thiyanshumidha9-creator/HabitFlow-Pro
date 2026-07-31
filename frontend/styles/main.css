@@ -29,6 +29,10 @@
 @import url('./components/loader.css');
 @import url('./components/empty-state.css');
 @import url('./components/error-boundary.css');
+@import url('./components/analytics.css');
+@import url('./components/sprint5.css');
+@import url('./components/sprint6.css');
+@import url('./components/profile-completion.css');
 
 /* ── Layout ────────────────────────────────── */
 .app-layout {

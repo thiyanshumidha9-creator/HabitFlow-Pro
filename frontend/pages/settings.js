@@ -1,315 +1,90 @@
-/* ============================================
-   HabitFlow Pro — Settings Page
-   ============================================ */
-
+/* HabitFlow Pro — Sprint 6 Settings Page */
 import { createCard } from '../components/card.js';
-import { createButton } from '../components/button.js';
-import { createInput } from '../components/input.js';
-import { createPasswordInput } from '../components/auth-components.js';
 import { renderIcons } from '../utils/icons.js';
 import { themeManager } from '../utils/theme.js';
 import { authService } from '../services/auth-service.js';
+import { tokenService } from '../services/token-service.js';
+import { settingsService } from '../services/settings-service.js';
+import { offlineService } from '../services/offline-service.js';
+import { exportJson, exportJournalTxt, exportHabitCsv, importBackupFile } from '../services/data-service.js';
 import { toastManager } from '../components/toast.js';
-import { validateFullName, validatePassword, validateConfirmPassword } from '../services/validation.js';
-import { $, on } from '../utils/dom.js';
 
-/**
- * Render the Settings page.
- * @param {Element} container
- */
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+const option = (value, label, current) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`;
+const toggle = (id, label, detail, checked) => `<label class="settings-row" for="${id}"><span><strong>${label}</strong><small>${detail}</small></span><input class="settings-toggle" type="checkbox" id="${id}" ${checked ? 'checked' : ''}></label>`;
+const selectRow = (id, label, value, options) => `<label class="settings-row" for="${id}"><span><strong>${label}</strong></span><select class="form-input form-input--sm" id="${id}">${options.map(x=>option(x[0],x[1],value)).join('')}</select></label>`;
+const sectionTitle = (icon, title) => `<span class="settings-section-heading"><span class="settings-section-icon"><i data-lucide="${icon}"></i></span><span>${title}</span></span>`;
+
 export function render(container) {
-  const currentTheme = themeManager.current;
   const user = authService.currentUser;
-
-  if (!user) {
-    container.innerHTML = `
-      <div class="page-enter text-center py-12">
-        <h2 class="heading-3 mb-2">Not Authenticated</h2>
-        <p class="text-body-sm mb-6">Please log in to customize settings.</p>
-        <a href="#/login" class="btn btn--primary">Log In</a>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="page-enter">
-      <div class="d-flex items-center justify-between mb-6">
-        <div>
-          <h1 class="page-title">Settings</h1>
-          <p class="page-subtitle">Customize and manage your HabitFlow Pro workspace</p>
-        </div>
-      </div>
-
-      <div class="d-flex flex-col gap-6" style="max-width: 640px;">
-        <!-- Appearance Card -->
-        ${createCard({
-          title: 'Appearance',
-          subtitle: 'Theme and display preferences',
-          body: `
-            <div class="d-flex items-center justify-between">
-              <div>
-                <div class="text-body fw-medium">Theme</div>
-                <div class="text-body-sm">Current: ${currentTheme === 'dark' ? 'Dark' : 'Light'} mode</div>
-              </div>
-              ${createButton({
-                text: currentTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark',
-                variant: 'secondary',
-                size: 'sm',
-                id: 'settings-theme-btn',
-                iconLeft: currentTheme === 'dark' ? 'sun' : 'moon',
-              })}
-            </div>
-          `,
-        })}
-
-        <!-- Account Settings Card -->
-        ${createCard({
-          title: 'Account Settings',
-          subtitle: 'Manage your profile information and account session',
-          body: `
-            <form id="account-info-form" class="d-flex flex-col gap-4">
-              ${createInput({
-                type: 'text',
-                name: 'full_name',
-                label: 'Full Name',
-                value: user.full_name,
-                required: true,
-                icon: 'user'
-              })}
-
-              ${createInput({
-                type: 'email',
-                name: 'email',
-                label: 'Email Address',
-                value: user.email,
-                disabled: true,
-                icon: 'mail',
-                helper: 'Email address cannot be changed'
-              })}
-
-              <div class="d-flex justify-between items-center mt-2">
-                ${createButton({
-                  text: 'Save Info',
-                  variant: 'primary',
-                  size: 'sm',
-                  type: 'submit',
-                  id: 'save-info-btn'
-                })}
-                ${createButton({
-                  text: 'Sign Out',
-                  variant: 'danger',
-                  size: 'sm',
-                  id: 'settings-logout-btn',
-                  iconLeft: 'log-out'
-                })}
-              </div>
-            </form>
-          `
-        })}
-
-        <!-- Change Password Card -->
-        ${createCard({
-          title: 'Security & Password',
-          subtitle: 'Change your account password',
-          body: `
-            <form id="security-form" class="d-flex flex-col gap-4">
-              ${createPasswordInput({
-                name: 'current_password',
-                label: 'Current Password',
-                placeholder: '••••••••',
-                required: true
-              })}
-
-              ${createPasswordInput({
-                name: 'new_password',
-                label: 'New Password',
-                placeholder: '••••••••',
-                required: true
-              })}
-
-              ${createPasswordInput({
-                name: 'confirm_new_password',
-                label: 'Confirm New Password',
-                placeholder: '••••••••',
-                required: true
-              })}
-
-              <div class="mt-2">
-                ${createButton({
-                  text: 'Update Password',
-                  variant: 'secondary',
-                  size: 'sm',
-                  type: 'submit',
-                  id: 'save-security-btn'
-                })}
-              </div>
-            </form>
-          `
-        })}
-
-        <!-- Data & Privacy Card -->
-        ${createCard({
-          title: 'Data & Privacy',
-          subtitle: 'Export and manage your data',
-          body: `
-            <div class="empty-state empty-state--compact">
-              <div class="empty-state-icon">
-                <i data-lucide="shield" style="width:100%;height:100%;"></i>
-              </div>
-              <h3 class="empty-state-title">Coming Soon</h3>
-              <p class="empty-state-description">Data export and privacy controls will appear here.</p>
-            </div>
-          `,
-        })}
-      </div>
-    </div>
-  `;
-
-  renderIcons();
-  bindEvents(container);
+  if (!user) { container.innerHTML = '<div class="page-enter text-center py-12"><h2>Not Authenticated</h2><a href="#/login" class="btn btn--primary">Log In</a></div>'; return; }
+  const settings = settingsService.get();
+  const n = settings.notifications;
+  container.innerHTML = `<div class="page-enter sprint6-page">
+    <div class="mb-6"><h1 class="page-title">Settings</h1><p class="page-subtitle">Customize and manage your HabitFlow Pro workspace</p></div>
+    <div class="settings-grid">
+      ${createCard({className:'settings-card',title:sectionTitle('palette','Appearance'),subtitle:'Theme and display preferences',body:`
+        ${selectRow('setting-theme','Theme',settings.theme,[['light','Light Mode'],['dark','Dark Mode'],['system','System Theme']])}
+        ${selectRow('setting-week','First Day of Week',settings.firstDayOfWeek,[['monday','Monday'],['sunday','Sunday']])}
+        ${selectRow('setting-time','Time Format',settings.timeFormat,[['12','12 hour'],['24','24 hour']])}
+        ${selectRow('setting-view','Default Habit View',settings.defaultHabitView,[['cards','Cards'],['list','List']])}
+        ${selectRow('setting-language','Language',settings.language,[['en','English (placeholder)']])}`})}
+      ${createCard({className:'settings-card',title:sectionTitle('bell-ring','Notifications'),subtitle:'Browser and reminder preferences',body:`
+        <p id="notification-support" class="text-body-sm mb-3">${notificationStatus()}</p>
+        ${toggle('notify-habits','Habit reminders','Reminder for active habits',n.habitReminders)}
+        ${toggle('notify-journal','Daily journal reminder','A daily writing prompt',n.journalReminder)}
+        ${toggle('notify-achievements','Achievement notifications','Celebrate newly unlocked milestones',n.achievements)}
+        ${toggle('notify-weekly','Weekly summary','Weekly activity recap',n.weeklySummary)}
+        ${toggle('notify-monthly','Monthly summary','Monthly progress recap',n.monthlySummary)}`})}
+      ${createCard({className:'settings-card',title:sectionTitle('shield-check','Privacy'),subtitle:'Session and local-device controls',body:`
+        ${toggle('setting-remember','Remember Login','Keep this account signed in on this device',settings.rememberLogin)}
+        ${toggle('setting-lock','Lock App','Require a quick unlock after returning to the app',settings.lockApp)}`})}
+      ${createCard({className:'settings-card',title:sectionTitle('database','Data'),subtitle:'Download, import, and restore your information',body:`
+        <div class="settings-actions"><button class="btn btn--primary btn--sm" id="export-json">Export JSON</button><button class="btn btn--secondary btn--sm" id="export-journal">Journal TXT</button><button class="btn btn--secondary btn--sm" id="export-habits">Habit CSV</button></div>
+        <hr><p class="text-body-sm">Importing a valid backup replaces your current habits and journal entries after confirmation.</p>
+        <input type="file" id="backup-file" accept="application/json,.json" hidden><button class="btn btn--secondary btn--sm" id="import-backup"><i data-lucide="upload"></i> Import & Restore</button>`})}
+      ${createCard({className:'settings-card',title:sectionTitle('app-window','Application'),subtitle:'Local app maintenance and account access',body:`
+        <p class="text-body-sm">Manage cached application files or securely end this session.</p>
+        <div class="settings-actions"><button class="btn btn--secondary btn--sm" id="clear-cache"><i data-lucide="trash-2"></i> Clear Local Cache</button><button class="btn btn--danger btn--sm" id="settings-logout"><i data-lucide="log-out"></i> Sign Out</button></div>`})}
+    </div></div>`;
+  renderIcons(); bind(container);
 }
 
-/**
- * Event bindings for Settings Page
- * @param {Element} container
- */
-function bindEvents(container) {
-  // Theme toggle button
-  const themeBtn = $('#settings-theme-btn', container);
-  if (themeBtn) {
-    on(themeBtn, 'click', () => {
-      themeManager.toggle();
-      render(container);
-    });
-  }
+function notificationStatus() {
+  if (!('Notification' in window)) return 'Browser notifications are not supported here; preferences will still be saved.';
+  return `Browser permission: ${escapeHtml(Notification.permission)}.`;
+}
 
-  // Logout button
-  const logoutBtn = $('#settings-logout-btn', container);
-  if (logoutBtn) {
-    on(logoutBtn, 'click', async () => {
-      try {
-        logoutBtn.classList.add('loading');
-        logoutBtn.disabled = true;
-        await authService.logout();
-        toastManager.success('You have been logged out successfully.', 'Session Terminated');
-        window.location.hash = '#/login';
-      } catch (err) {
-        logoutBtn.classList.remove('loading');
-        logoutBtn.disabled = false;
-        toastManager.error('Logout request failed. Please try again.', 'Error');
+function bind(container) {
+  const save = patch => { settingsService.save(patch); toastManager.success('Setting saved.', 'Settings'); };
+  container.querySelector('#setting-theme').onchange = e => save({ theme:e.target.value });
+  container.querySelector('#setting-week').onchange = e => save({ firstDayOfWeek:e.target.value });
+  container.querySelector('#setting-time').onchange = e => save({ timeFormat:e.target.value });
+  container.querySelector('#setting-view').onchange = e => save({ defaultHabitView:e.target.value });
+  container.querySelector('#setting-language').onchange = e => save({ language:e.target.value });
+  container.querySelector('#setting-remember').onchange = e => { tokenService.setRememberMe(e.target.checked); save({ rememberLogin:e.target.checked }); };
+  container.querySelector('#setting-lock').onchange = e => save({ lockApp:e.target.checked });
+  const notificationMap = {'notify-habits':'habitReminders','notify-journal':'journalReminder','notify-achievements':'achievements','notify-weekly':'weeklySummary','notify-monthly':'monthlySummary'};
+  Object.entries(notificationMap).forEach(([id,key]) => container.querySelector(`#${id}`).onchange = async e => {
+    if (e.target.checked) {
+      if (!('Notification' in window)) { e.target.checked=false; toastManager.error('This browser does not support notifications.', 'Notifications'); return; }
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') { e.target.checked=false; toastManager.error('Notification permission was denied.', 'Notifications'); return; }
       }
-    });
-  }
-
-  // Account Info Form Submit (Mock save)
-  const infoForm = $('#account-info-form', container);
-  const nameInput = $('#input-full_name', infoForm);
-  const saveInfoBtn = $('#save-info-btn', infoForm);
-  if (infoForm) {
-    on(infoForm, 'submit', (e) => {
-      e.preventDefault();
-      
-      const newName = nameInput.value;
-      const check = validateFullName(newName);
-
-      if (!check.isValid) {
-        nameInput.classList.add('form-input--error');
-        const helper = document.getElementById(`${nameInput.id}-helper`);
-        if (helper) {
-          helper.className = 'form-error';
-          helper.innerHTML = `<i data-lucide="alert-circle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>${check.message}`;
-          renderIcons();
-        }
-        return;
-      }
-
-      // Clear errors
-      nameInput.classList.remove('form-input--error');
-      
-      saveInfoBtn.classList.add('loading');
-      saveInfoBtn.disabled = true;
-
-      // Mock delay
-      setTimeout(() => {
-        saveInfoBtn.classList.remove('loading');
-        saveInfoBtn.disabled = false;
-        
-        // Update user display name in mock memory
-        if (authService.currentUser) {
-          authService.currentUser.full_name = newName;
-          
-          // Re-render UI to update top nav, user menu etc.
-          const avatar = document.getElementById('topnav-avatar');
-          if (avatar) avatar.textContent = newName.charAt(0).toUpperCase();
-        }
-        
-        toastManager.success('Account information updated successfully.', 'Information Saved');
-      }, 1000);
-    });
-  }
-
-  // Security Form Submit (Mock update)
-  const securityForm = $('#security-form', container);
-  const currentPass = $('#input-current_password', securityForm);
-  const newPass = $('#input-new_password', securityForm);
-  const confirmNewPass = $('#input-confirm_new_password', securityForm);
-  const saveSecurityBtn = $('#save-security-btn', securityForm);
-
-  if (securityForm) {
-    on(securityForm, 'submit', (e) => {
-      e.preventDefault();
-
-      // Clear errors
-      [currentPass, newPass, confirmNewPass].forEach(input => {
-        input.classList.remove('form-input--error');
-        const helper = document.getElementById(`${input.id}-helper`);
-        if (helper) {
-          helper.className = 'form-helper';
-          helper.innerHTML = '';
-        }
-      });
-
-      let isValid = true;
-
-      // Validate new password
-      const newCheck = validatePassword(newPass.value);
-      if (!newCheck.isValid) {
-        showInputError(newPass, newCheck.message);
-        isValid = false;
-      }
-
-      // Validate confirm
-      const confirmCheck = validateConfirmPassword(newPass.value, confirmNewPass.value);
-      if (!confirmCheck.isValid) {
-        showInputError(confirmNewPass, confirmCheck.message);
-        isValid = false;
-      }
-
-      if (!isValid) return;
-
-      saveSecurityBtn.classList.add('loading');
-      saveSecurityBtn.disabled = true;
-
-      // Mock update
-      setTimeout(() => {
-        saveSecurityBtn.classList.remove('loading');
-        saveSecurityBtn.disabled = false;
-        currentPass.value = '';
-        newPass.value = '';
-        confirmNewPass.value = '';
-        toastManager.success('Your security password has been changed.', 'Password Updated');
-      }, 1200);
-    });
-  }
-
-  function showInputError(input, msg) {
-    input.classList.add('form-input--error');
-    const helper = document.getElementById(`${input.id}-helper`);
-    if (helper) {
-      helper.className = 'form-error';
-      helper.innerHTML = `<i data-lucide="alert-circle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>${msg}`;
-      renderIcons();
     }
-  }
+    settingsService.setNotification(key,e.target.checked); toastManager.success('Notification preference saved.', 'Notifications');
+  });
+  container.querySelector('#clear-cache').onclick = async () => {
+    offlineService.clearDataCache();
+    if ('caches' in window) await Promise.all((await caches.keys()).map(key=>caches.delete(key)));
+    toastManager.success('Local cache cleared. Pending offline changes were preserved.', 'Cache Cleared');
+  };
+  container.querySelector('#settings-logout').onclick = async () => { await authService.logout(); location.hash='#/login'; };
+  const runExport = async (fn,label) => { try { await fn(); toastManager.success(`${label} downloaded.`, 'Export Complete'); } catch(e) { toastManager.error(e.message,'Export Failed'); } };
+  container.querySelector('#export-json').onclick=()=>runExport(exportJson,'JSON backup');
+  container.querySelector('#export-journal').onclick=()=>runExport(exportJournalTxt,'Journal text');
+  container.querySelector('#export-habits').onclick=()=>runExport(exportHabitCsv,'Habit summary');
+  const file=container.querySelector('#backup-file'); container.querySelector('#import-backup').onclick=()=>file.click();
+  file.onchange=async()=>{ if(!file.files[0])return; if(!confirm('Restore this backup? Current habits and journal entries will be replaced.')){file.value='';return;} try{await importBackupFile(file.files[0]);toastManager.success('Backup restored successfully.','Restore Complete');render(container);}catch(e){toastManager.error(e.message,'Invalid Import');}finally{file.value='';} };
 }

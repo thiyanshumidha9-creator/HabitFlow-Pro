@@ -1,326 +1,63 @@
-/* ============================================
-   HabitFlow Pro — Profile Page
-   ============================================ */
-
+/* HabitFlow Pro — Profile Page */
 import { authService } from '../services/auth-service.js';
-import { createCard } from '../components/card.js';
-import { createInput } from '../components/input.js';
-import { createButton } from '../components/button.js';
-import { renderIcons } from '../utils/icons.js';
+import { api } from '../services/api.js';
+import { PROFILE_PICTURE_KEY } from '../services/settings-service.js';
 import { toastManager } from '../components/toast.js';
-import { validateFullName, validatePhone } from '../services/validation.js';
-import { $, on } from '../utils/dom.js';
+import { renderIcons } from '../utils/icons.js';
 
-let isEditing = false;
-let isSubmitting = false;
+const esc = value => String(value ?? '').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const formatDate = value => value ? new Date(value).toLocaleDateString(undefined,{dateStyle:'long'}) : 'Not available';
+const formatDateTime = value => value ? new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}) : 'Not available';
+const initials = name => String(name || 'Member').trim().split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase();
+let stats = null;
+let pendingPicture = null;
 
-/**
- * Render the Profile page.
- * @param {Element} container - Main content container
- */
-export function render(container) {
-  const user = authService.currentUser;
-
-  if (!user) {
-    container.innerHTML = `
-      <div class="page-enter text-center py-12">
-        <h2 class="heading-3 mb-2">Not Authenticated</h2>
-        <p class="text-body-sm mb-6">Please log in to view your profile details.</p>
-        <a href="#/login" class="btn btn--primary">Log In</a>
-      </div>
-    `;
-    return;
-  }
-
-  // Format date strings
-  const createdDate = user.created_at 
-    ? new Date(user.created_at).toLocaleDateString('en-US', { dateStyle: 'long' })
-    : 'Unknown';
-
-  const lastLogin = user.last_login_at
-    ? new Date(user.last_login_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-    : 'Never';
-
-  // Read-only view vs Edit-mode view
-  const profileBodyHTML = isEditing
-    ? `
-      <form id="profile-edit-form" class="d-flex flex-col gap-4">
-        ${createInput({
-          type: 'text',
-          name: 'full_name',
-          id: 'profile-full-name',
-          label: 'Full Name',
-          value: user.full_name,
-          required: true,
-          icon: 'user'
-        })}
-
-        ${createInput({
-          type: 'tel',
-          name: 'phone',
-          id: 'profile-phone',
-          label: 'Phone Number (Optional)',
-          value: user.phone || '',
-          placeholder: '+1234567890',
-          icon: 'phone'
-        })}
-
-        ${createInput({
-          type: 'email',
-          name: 'email',
-          label: 'Email Address',
-          value: user.email,
-          disabled: true,
-          icon: 'mail',
-          helper: 'Email address cannot be changed'
-        })}
-
-        <div class="d-flex gap-3 mt-2">
-          ${createButton({
-            text: 'Save Changes',
-            variant: 'primary',
-            size: 'sm',
-            type: 'submit',
-            id: 'profile-save-btn'
-          })}
-          ${createButton({
-            text: 'Cancel',
-            variant: 'secondary',
-            size: 'sm',
-            id: 'profile-cancel-btn'
-          })}
-        </div>
-      </form>
-    `
-    : `
-      <div class="d-flex flex-col gap-6">
-        <!-- Avatar block -->
-        <div class="d-flex items-center gap-4">
-          <div style="width: 64px; height: 64px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--color-primary), hsl(var(--brand-hue), 80%, 62%)); display: flex; align-items: center; justify-content: center; color: var(--color-white); font-size: var(--fs-2xl); font-weight: var(--fw-semibold); user-select: none;">
-            ${(user.full_name || 'U').charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <h3 class="heading-4" style="margin: 0;">${user.full_name || 'User'}</h3>
-            <span class="text-caption text-accent" style="font-size: var(--fs-xs); font-weight: var(--fw-semibold);">${user.role?.toUpperCase() || 'USER'}</span>
-          </div>
-        </div>
-
-        <hr class="m-0" />
-
-        <!-- Details block -->
-        <div class="d-flex flex-col gap-4">
-          <div class="d-flex justify-between items-center">
-            <span class="text-body-sm fw-medium">Email Address</span>
-            <span class="text-body fw-semibold text-right text-truncate" style="max-width: 220px;" title="${user.email}">${user.email}</span>
-          </div>
-          <div class="d-flex justify-between items-center">
-            <span class="text-body-sm fw-medium">Phone Number</span>
-            <span class="text-body fw-semibold text-right">${user.phone || 'Not provided'}</span>
-          </div>
-          <div class="d-flex justify-between items-center">
-            <span class="text-body-sm fw-medium">Member Since</span>
-            <span class="text-body fw-semibold text-right">${createdDate}</span>
-          </div>
-          <div class="d-flex justify-between items-center">
-            <span class="text-body-sm fw-medium">Last Login</span>
-            <span class="text-body fw-semibold text-right" style="font-size: var(--fs-sm);">${lastLogin}</span>
-          </div>
-          <div class="d-flex justify-between items-center">
-            <span class="text-body-sm fw-medium">Account Status</span>
-            <span class="d-inline-flex items-center gap-1" style="font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: ${user.is_active ? 'var(--color-success)' : 'var(--color-danger)'}">
-              <span style="width: 8px; height: 8px; border-radius: var(--radius-full); background: currentColor;"></span>
-              ${user.is_active ? 'Active' : 'Suspended'}
-            </span>
-          </div>
-        </div>
-
-        <div class="d-flex gap-3">
-          ${createButton({
-            text: 'Edit Profile',
-            variant: 'secondary',
-            size: 'sm',
-            id: 'profile-edit-btn',
-            iconLeft: 'user-cog'
-          })}
-        </div>
-      </div>
-    `;
-
-  container.innerHTML = `
-    <div class="page-enter">
-      <div class="d-flex items-center justify-between mb-6">
-        <div>
-          <h1 class="page-title">Profile</h1>
-          <p class="page-subtitle">Your personal account dashboard and credentials</p>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Main profile details card -->
-        <div class="col-12 md:col-6 lg:col-5">
-          ${createCard({
-            title: 'Account Information',
-            subtitle: 'Verified credentials and membership',
-            body: profileBodyHTML
-          })}
-        </div>
-
-        <!-- Right helper/status cards -->
-        <div class="col-12 md:col-6 lg:col-7">
-          <div class="d-flex flex-col gap-6">
-            ${createCard({
-              title: 'Security Settings',
-              subtitle: 'Update credentials and enable security measures',
-              body: `
-                <div class="d-flex flex-col gap-4">
-                  <p class="text-body-sm" style="line-height: var(--lh-relaxed);">
-                    We recommend changing your password regularly and using complex combinations to protect your logs and progress records.
-                  </p>
-                  <div class="d-flex gap-3">
-                    <a href="#/settings" class="btn btn--secondary btn--sm">Manage Settings</a>
-                  </div>
-                </div>
-              `
-            })}
-
-            ${createCard({
-              title: 'System Preferences',
-              subtitle: 'System version and workspace config',
-              body: `
-                <div class="d-flex flex-col gap-2">
-                  <div class="d-flex justify-between items-center py-1">
-                    <span class="text-body-sm">Client App Version</span>
-                    <span class="text-code">v1.0.0</span>
-                  </div>
-                  <div class="d-flex justify-between items-center py-1">
-                    <span class="text-body-sm">Server Version</span>
-                    <span class="text-code">FastAPI 0.115+</span>
-                  </div>
-                  <div class="d-flex justify-between items-center py-1">
-                    <span class="text-body-sm">Offline Capability</span>
-                    <span class="d-inline-flex items-center gap-1 text-success" style="font-weight: var(--fw-semibold);">
-                      <i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i> Ready
-                    </span>
-                  </div>
-                </div>
-              `
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  renderIcons();
-  bindEvents(container);
+function infoRow(icon, label, value, extraClass='') {
+  return `<div class="profile-info-row"><span class="profile-info-icon" aria-hidden="true"><i data-lucide="${icon}"></i></span><span class="profile-info-label">${label}</span><strong class="profile-info-value ${extraClass}">${esc(value)}</strong></div>`;
+}
+function statCard(icon, label, value) {
+  return `<article class="card profile-stat-card"><div class="card-body"><span class="profile-stat-icon" aria-hidden="true"><i data-lucide="${icon}"></i></span><span>${label}</span><strong>${esc(value)}</strong></div></article>`;
+}
+function avatarContent(user, picture) {
+  return picture ? `<img src="${picture}" alt="${esc(user.full_name)} profile picture">` : `<span aria-hidden="true">${esc(initials(user.full_name))}</span><span class="sr-only">${esc(user.full_name)} initials</span>`;
 }
 
-/**
- * Event bindings for Profile Page
- * @param {Element} container
- */
-function bindEvents(container) {
-  // Edit Profile toggle button
-  const editBtn = $('#profile-edit-btn', container);
-  if (editBtn) {
-    on(editBtn, 'click', () => {
-      isEditing = true;
-      render(container);
-    });
+export async function render(container) {
+  const user = authService.currentUser;
+  if (!user) { container.innerHTML='<div class="page-enter text-center py-12"><h2>Not Authenticated</h2><a href="#/login" class="btn btn--primary">Log In</a></div>';return; }
+  if (!stats) {
+    try { stats=(await api.getCached('/profile/stats',30000)).data; }
+    catch { stats={total_habits:'—',completed_habits:'—',total_journal_entries:'—',achievements:[]}; }
   }
+  const savedPicture=localStorage.getItem(PROFILE_PICTURE_KEY);
+  const picture=pendingPicture ?? savedPicture;
+  const hasPendingPicture=pendingPicture!==null;
+  const earned=stats.achievements_earned ?? (stats.achievements||[]).filter(a=>a.unlocked).length;
+  container.innerHTML=`<div class="page-enter sprint6-page"><header class="page-header mb-6"><h1 class="page-title">Profile</h1><p class="page-subtitle">Manage your personal details and review your HabitFlow progress.</p></header>
+  <div class="profile-grid">
+    <section class="card profile-account-card"><div class="card-header"><div><h2 class="card-header-title">Account Information</h2><p class="card-header-subtitle">Your profile and membership details</p></div></div><div class="card-body">
+      <div class="profile-identity"><div class="profile-avatar-wrap"><div class="profile-avatar" id="profile-avatar">${avatarContent(user,picture)}</div><button class="profile-photo-button" id="avatar-button" type="button" aria-label="Edit profile photo"><i data-lucide="camera"></i><span>Edit Photo</span></button><input id="avatar-file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden></div><div class="profile-identity-copy"><h3 class="profile-name">${esc(user.full_name)}</h3><span class="member-badge"><i data-lucide="user-round-check"></i>Member</span></div></div>
+      <div class="profile-photo-actions ${picture?'':'is-hidden'}" id="photo-actions"><button class="btn btn--primary btn--sm ${hasPendingPicture?'':'is-hidden'}" id="save-avatar" type="button"><i data-lucide="save"></i>Save Photo</button><button class="btn btn--secondary btn--sm" id="remove-avatar" type="button"><i data-lucide="trash-2"></i>Remove Photo</button></div><p class="form-helper profile-photo-helper">JPG, JPEG, PNG, or WebP. Maximum 5 MB.</p>
+      <div class="profile-info-list">${infoRow('mail','Email',user.email)}${user.phone?infoRow('phone','Phone',user.phone):''}${infoRow('calendar-days','Member Since',formatDate(user.created_at))}${infoRow('clock-3','Last Login',formatDateTime(user.last_login_at))}${infoRow('shield-check','Account Status',user.is_active?'Active':'Inactive',user.is_active?'text-success':'text-danger')}${infoRow('badge-check','Role',user.role?.toLowerCase()==='user'?'Member':user.role||'Member')}${infoRow('fingerprint','User ID',user.id||'Not available')}</div>
+      <div class="profile-actions"><button class="btn btn--primary btn--sm" id="edit-profile-button"><i data-lucide="pencil"></i>Edit Profile</button><a class="btn btn--secondary btn--sm" href="#/settings"><i data-lucide="settings-2"></i>Manage Settings</a></div>
+      <div class="profile-editor" id="profile-editor" hidden><hr><form id="profile-form" class="profile-form"><label class="form-group"><span class="form-label">Full Name</span><input class="form-input" id="profile-name" value="${esc(user.full_name)}" minlength="2" maxlength="150" autocomplete="name" required><span class="form-helper">Enter between 2 and 150 characters.</span></label><label class="form-group"><span class="form-label">Email Address</span><input class="form-input" id="profile-email" type="email" value="${esc(user.email)}" maxlength="255" autocomplete="email" required></label><div class="profile-form-actions"><button class="btn btn--primary btn--sm" type="submit"><i data-lucide="save"></i>Save Changes</button><button class="btn btn--secondary btn--sm" type="button" id="cancel-profile">Cancel</button></div></form></div>
+    </div></section>
+    <div class="profile-main-column"><section aria-labelledby="quick-statistics-title"><div class="section-heading mb-4"><h2 id="quick-statistics-title" class="card-header-title">Quick Statistics</h2><p class="card-header-subtitle">Your progress at a glance</p></div><div class="profile-stats">${statCard('target','Total Habits',stats.total_habits??'—')}${statCard('circle-check-big','Completed Habits',stats.completed_habits??stats.total_completions??'—')}${statCard('flame','Current Streak',stats.current_streak!=null?`${stats.current_streak} days`:'—')}${statCard('trophy','Longest Streak',stats.longest_streak!=null?`${stats.longest_streak} days`:'—')}${statCard('book-open','Journal Entries',stats.total_journal_entries??'—')}${statCard('award','Achievements Earned',earned)}${statCard('percent','Completion Rate',stats.completion_rate!=null?`${stats.completion_rate}%`:'—')}</div></section>
+      <section class="card"><div class="card-header"><div><h2 class="card-header-title">Change Password</h2><p class="card-header-subtitle">Protect your account with a strong, unique password</p></div></div><div class="card-body"><form id="password-form" class="profile-form"><label class="form-group"><span class="form-label">Current Password</span><input class="form-input" id="current-password" type="password" autocomplete="current-password" required></label><label class="form-group"><span class="form-label">New Password</span><input class="form-input" id="new-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="password-requirements" required><span class="form-helper" id="password-requirements">At least 8 characters, including a letter and a number.</span></label><label class="form-group"><span class="form-label">Confirm Password</span><input class="form-input" id="confirm-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></label><button class="btn btn--primary btn--sm" type="submit"><i data-lucide="key-round"></i>Update Password</button></form></div></section>
+      <section class="card"><div class="card-header"><div><h2 class="card-header-title">Achievements</h2><p class="card-header-subtitle">Milestones you have unlocked</p></div></div><div class="card-body"><div class="profile-achievements">${(stats.achievements||[]).filter(a=>a.unlocked).map(a=>`<span class="badge badge--success"><i data-lucide="${esc(a.icon||'award')}"></i>${esc(a.title)}</span>`).join('')||'<p class="text-body-sm">No achievements unlocked yet. Keep building your routine.</p>'}</div></div></section>
+    </div></div></div>`;
+  renderIcons(); bind(container);
+}
 
-  // Cancel edit button
-  const cancelBtn = $('#profile-cancel-btn', container);
-  if (cancelBtn) {
-    on(cancelBtn, 'click', (e) => {
-      e.preventDefault();
-      isEditing = false;
-      render(container);
-    });
-  }
-
-  // Submit edit form
-  const form = $('#profile-edit-form', container);
-  if (form) {
-    const nameInput = $('#profile-full-name', form);
-    const phoneInput = $('#profile-phone', form);
-    const saveBtn = $('#profile-save-btn', form);
-
-    on(form, 'submit', async (e) => {
-      e.preventDefault();
-
-      if (isSubmitting) return;
-
-      const newName = nameInput.value.trim();
-      const newPhone = phoneInput.value.trim();
-
-      // Clear previous error messages
-      [nameInput, phoneInput].forEach(input => {
-        input.classList.remove('form-input--error');
-        const helper = document.getElementById(`${input.id}-helper`);
-        if (helper) {
-          helper.className = 'form-helper';
-          helper.innerHTML = '';
-        }
-      });
-
-      // 1. Validate fields
-      let isValid = true;
-
-      const nameCheck = validateFullName(newName);
-      if (!nameCheck.isValid) {
-        showInputError(nameInput, nameCheck.message);
-        isValid = false;
-      }
-
-      const phoneCheck = validatePhone(newPhone);
-      if (!phoneCheck.isValid) {
-        showInputError(phoneInput, phoneCheck.message);
-        isValid = false;
-      }
-
-      if (!isValid) return;
-
-      // 2. Set submitting state to block duplicates and show loader
-      isSubmitting = true;
-      saveBtn.classList.add('loading');
-      saveBtn.disabled = true;
-      cancelBtn.disabled = true;
-      nameInput.disabled = true;
-      phoneInput.disabled = true;
-
-      try {
-        // Mock profile save API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Update active user memory state
-        if (authService.currentUser) {
-          authService.currentUser.full_name = newName;
-          authService.currentUser.phone = newPhone;
-          
-          // Sync header avatar initials
-          const avatar = document.getElementById('topnav-avatar');
-          if (avatar) avatar.textContent = newName.charAt(0).toUpperCase();
-        }
-
-        toastManager.success('Profile changes saved successfully.', 'Profile Updated');
-        isEditing = false;
-      } catch (err) {
-        toastManager.error(err.message || 'An error occurred while saving profile changes.', 'Update Failed');
-      } finally {
-        isSubmitting = false;
-        render(container);
-      }
-    });
-  }
-
-  function showInputError(input, msg) {
-    input.classList.add('form-input--error');
-    const helper = document.getElementById(`${input.id}-helper`);
-    if (helper) {
-      helper.className = 'form-error';
-      helper.innerHTML = `<i data-lucide="alert-circle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>${msg}`;
-      renderIcons();
-    }
-  }
+function bind(container){
+  const editor=container.querySelector('#profile-editor');
+  container.querySelector('#edit-profile-button').onclick=()=>{editor.hidden=false;container.querySelector('#profile-name').focus();editor.scrollIntoView({behavior:'smooth',block:'nearest'});};
+  container.querySelector('#cancel-profile').onclick=()=>{editor.hidden=true;container.querySelector('#edit-profile-button').focus();};
+  container.querySelector('#profile-form').onsubmit=async e=>{e.preventDefault();const full_name=container.querySelector('#profile-name').value.trim(),email=container.querySelector('#profile-email').value.trim();if(full_name.length<2||full_name.length>150){toastManager.error('Full name must be between 2 and 150 characters.','Profile');return;}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toastManager.error('Enter a valid email address.','Profile');return;}try{await authService.updateProfile({full_name,email});toastManager.success('Profile updated successfully.','Profile Updated');render(container);}catch(err){toastManager.error(err.message,'Profile Update Failed');}};
+  container.querySelector('#password-form').onsubmit=async e=>{e.preventDefault();const current=container.querySelector('#current-password').value,next=container.querySelector('#new-password').value,confirm=container.querySelector('#confirm-password').value;if(!/^(?=.*[A-Za-z])(?=.*\d).{8,128}$/.test(next)){toastManager.error('Use at least 8 characters with a letter and a number.','Password');return;}if(next!==confirm){toastManager.error('New passwords do not match.','Password');return;}if(current===next){toastManager.error('Your new password must be different from the current password.','Password');return;}try{await authService.changePassword(current,next);e.target.reset();toastManager.success('Password changed successfully.','Password Updated');}catch(err){toastManager.error(err.message,'Password Change Failed');}};
+  const file=container.querySelector('#avatar-file');
+  container.querySelector('#avatar-button').onclick=()=>file.click();
+  file.onchange=()=>{const selected=file.files[0];if(!selected)return;if(!['image/png','image/jpeg','image/webp'].includes(selected.type)||selected.size>5*1024*1024){file.value='';toastManager.error('Choose a JPG, JPEG, PNG, or WebP image up to 5 MB.','Invalid Photo');return;}const reader=new FileReader();reader.onload=()=>{pendingPicture=reader.result;container.querySelector('#profile-avatar').innerHTML=avatarContent(authService.currentUser,pendingPicture);container.querySelector('#photo-actions').classList.remove('is-hidden');container.querySelector('#save-avatar').classList.remove('is-hidden');toastManager.info('Preview ready. Select Save Photo to keep it.','Photo Preview');};reader.onerror=()=>toastManager.error('Unable to read that image.','Upload Failed');reader.readAsDataURL(selected);};
+  container.querySelector('#save-avatar').onclick=()=>{if(!pendingPicture&&localStorage.getItem(PROFILE_PICTURE_KEY))return;const value=pendingPicture;if(value)localStorage.setItem(PROFILE_PICTURE_KEY,value);pendingPicture=null;window.dispatchEvent(new CustomEvent('profile:photochange',{detail:{picture:value}}));toastManager.success('Profile photo saved.','Profile Updated');render(container);};
+  container.querySelector('#remove-avatar').onclick=()=>{localStorage.removeItem(PROFILE_PICTURE_KEY);pendingPicture=null;window.dispatchEvent(new CustomEvent('profile:photochange',{detail:{picture:null}}));toastManager.success('Profile photo removed. Your initials are shown instead.','Photo Removed');render(container);};
 }

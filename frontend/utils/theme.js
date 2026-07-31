@@ -19,19 +19,23 @@ class ThemeManager {
    * Reads saved preference → system preference → defaults to 'light'.
    */
   init() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (systemDark ? 'dark' : 'light');
+    const saved = localStorage.getItem(STORAGE_KEY) || 'system';
+    this._preference = saved;
+    this._apply(this._resolve(saved));
 
-    this._apply(theme);
-
-    // Listen for OS-level theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        this._apply(e.matches ? 'dark' : 'light');
-      }
+    // Listen for OS-level theme changes while System Theme is selected.
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (this.preference === 'system') this._apply(this._resolve('system'));
     });
   }
+
+  _resolve(theme) {
+    return theme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+  }
+
+  get preference() { return this._preference || localStorage.getItem(STORAGE_KEY) || 'system'; }
 
   /**
    * Get the current theme.
@@ -54,8 +58,10 @@ class ThemeManager {
    * @param {'light'|'dark'} theme
    */
   set(theme) {
+    if (!['light', 'dark', 'system'].includes(theme)) return;
+    this._preference = theme;
     localStorage.setItem(STORAGE_KEY, theme);
-    this._apply(theme);
+    this._apply(this._resolve(theme));
   }
 
   /**

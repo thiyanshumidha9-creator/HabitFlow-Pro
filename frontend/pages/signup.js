@@ -54,7 +54,8 @@ export function render(container) {
       <div class="mt-4">
         ${createLoadingButton({
           text: 'Create Account',
-          id: 'signup-submit-btn'
+          id: 'signup-submit-btn',
+          type: 'submit'
         })}
       </div>
     </form>

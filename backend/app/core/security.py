@@ -11,6 +11,7 @@ All parameters (algorithm, cost factors, expiry) are driven by ``Settings``.
 
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import jwt
 from passlib.context import CryptContext
@@ -205,6 +206,7 @@ def _create_token(
     payload: Dict[str, Any] = {
         "sub": subject,
         "type": token_type,
+        "jti": str(uuid4()),
         "iat": now,
         "exp": now + expires_delta,
     }

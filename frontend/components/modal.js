@@ -36,6 +36,13 @@ class ModalManager {
    * @returns {string} Modal ID for reference
    */
   open(options = {}) {
+    if (!this._container || !document.body.contains(this._container)) {
+      this._container = document.getElementById('modal-root');
+      if (!this._container) {
+        this.init();
+      }
+    }
+
     const {
       title = '',
       body = '',
@@ -88,10 +95,9 @@ class ModalManager {
         if (e.target === backdrop) this.close(id);
       });
 
-      const closeBtn = backdrop.querySelector('[data-modal-close]');
-      if (closeBtn) {
-        on(closeBtn, 'click', () => this.close(id));
-      }
+      backdrop.querySelectorAll('[data-modal-close]').forEach((btn) => {
+        on(btn, 'click', () => this.close(id));
+      });
     }
 
     // Focus trap

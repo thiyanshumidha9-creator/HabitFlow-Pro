@@ -43,6 +43,13 @@ class ToastManager {
    * @returns {string} Toast ID
    */
   show(options = {}) {
+    if (!this._container || !document.body.contains(this._container)) {
+      this._container = document.getElementById('toast-container');
+      if (!this._container) {
+        this.init();
+      }
+    }
+
     const {
       title = '',
       message = '',

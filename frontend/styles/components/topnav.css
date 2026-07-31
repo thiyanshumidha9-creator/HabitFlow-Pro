@@ -148,6 +148,18 @@
   transform: scale(1.05);
 }
 
+.topnav-avatar:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 3px;
+}
+
+.topnav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
 /* ── Theme Toggle ──────────────────────────── */
 .theme-toggle {
   display: flex;

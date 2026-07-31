@@ -96,6 +96,7 @@ export function createRememberCheckbox(options = {}) {
  */
 export function createLoadingButton(options = {}) {
   return createButton({
+    type: 'submit',
     ...options,
     variant: 'primary',
     size: 'lg',

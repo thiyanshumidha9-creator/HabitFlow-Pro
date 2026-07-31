@@ -23,20 +23,20 @@ export function render(container) {
       <div id="login-error-container" class="d-none"></div>
 
       ${createInput({
-        type: 'email',
-        name: 'email',
-        label: 'Email Address',
-        placeholder: 'name@example.com',
-        required: true,
-        icon: 'mail'
-      })}
+    type: 'email',
+    name: 'email',
+    label: 'Email Address',
+    placeholder: 'name@example.com',
+    required: true,
+    icon: 'mail'
+  })}
 
       ${createPasswordInput({
-        name: 'password',
-        label: 'Password',
-        placeholder: '••••••••',
-        required: true
-      })}
+    name: 'password',
+    label: 'Password',
+    placeholder: '••••••••',
+    required: true
+  })}
 
       <div class="d-flex items-center justify-between mt-2">
         ${createRememberCheckbox({ checked: rememberMe, id: 'remember-me' })}
@@ -45,9 +45,10 @@ export function render(container) {
 
       <div class="mt-4">
         ${createLoadingButton({
-          text: 'Sign In',
-          id: 'login-submit-btn'
-        })}
+    text: 'Sign In',
+    id: 'login-submit-btn',
+    type: 'submit'
+  })}
       </div>
     </form>
   `;
@@ -86,8 +87,9 @@ function bindEvents(container) {
   if (!form) return;
 
   on(form, 'submit', async (e) => {
+    console.log("LOGIN SUBMIT EVENT FIRED");
     e.preventDefault();
-    
+
     // Clear previous errors
     clearErrors();
 
@@ -97,7 +99,7 @@ function bindEvents(container) {
 
     // 1. Perform form validations
     let isValid = true;
-    
+
     const emailCheck = validateEmail(email);
     if (!emailCheck.isValid) {
       showInputError(emailInput, emailCheck.message);
@@ -122,7 +124,7 @@ function bindEvents(container) {
     try {
       // 3. Request authentication
       await authService.login(email, password, rememberMe);
-      
+
       // Success toast and redirection
       toastManager.success('Welcome back to HabitFlow Pro!', 'Login Successful');
       window.location.hash = '#/dashboard';
@@ -134,15 +136,15 @@ function bindEvents(container) {
       passwordInput.disabled = false;
       rememberCheckbox.disabled = false;
       passwordInput.value = ''; // Clear password field on error
-      
+
       // Focus password on fail
       passwordInput.focus();
 
       // Show alert details
-      const alertMsg = err.status === 401 
+      const alertMsg = err.status === 401
         ? 'Invalid email or password. Please verify your credentials and try again.'
         : err.message || 'An unexpected connection error occurred. Please try again.';
-      
+
       showGlobalError(alertMsg);
       toastManager.error(alertMsg, 'Authentication Failed');
     }
@@ -152,7 +154,7 @@ function bindEvents(container) {
   function clearErrors() {
     errorAlert.className = 'd-none';
     errorAlert.innerHTML = '';
-    
+
     // Clear field-level indicators
     [emailInput, passwordInput].forEach(input => {
       input.classList.remove('form-input--error');

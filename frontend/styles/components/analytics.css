@@ -1,0 +1,289 @@
+/* ============================================
+   HabitFlow Pro — Analytics & Achievements Styles
+   ============================================ */
+
+/* ── Stat Cards Grid ──────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.stat-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: transform var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-value {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+}
+
+.stat-card-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+}
+
+/* ── Chart Container ──────────────────────── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: var(--space-6);
+}
+
+@media (max-width: 767px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-container {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  position: relative;
+}
+
+.chart-container-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.chart-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-height: 280px;
+}
+
+.chart-canvas-wrapper canvas {
+  width: 100% !important;
+  max-height: 280px;
+}
+
+/* ── Insights Section ─────────────────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.insight-item {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  transition: box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.insight-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.insight-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.insight-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.insight-label {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.insight-value {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.insight-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* ── Achievement Cards ────────────────────── */
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.achievement-item {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  transition: transform var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.achievement-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.achievement-item.locked {
+  opacity: 0.65;
+}
+
+.achievement-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-spring);
+}
+
+.achievement-item:hover .achievement-badge {
+  transform: scale(1.08);
+}
+
+.achievement-badge.unlocked {
+  background: linear-gradient(135deg, hsl(38, 92%, 50%), hsl(var(--brand-hue), 90%, 55%));
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+}
+
+.achievement-badge.locked {
+  background: var(--color-gray-200);
+  color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .achievement-badge.locked {
+  background: var(--color-gray-800);
+}
+
+.achievement-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.achievement-desc {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Progress Bar ─────────────────────────── */
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .progress-track {
+  background: var(--color-gray-800);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), hsl(var(--brand-hue), 90%, 62%));
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+.progress-fill.complete {
+  background: linear-gradient(90deg, var(--color-success), hsl(142, 71%, 55%));
+}
+
+.achievement-progress-text {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--fw-medium);
+}
+
+/* ── Section Dividers ─────────────────────── */
+.analytics-section {
+  margin-bottom: var(--space-8);
+}
+
+.analytics-section-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .stat-card {
+    padding: var(--space-3);
+  }
+
+  .stat-card-value {
+    font-size: var(--fs-xl);
+  }
+
+  .achievement-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-grid {
+    gap: var(--space-4);
+  }
+}

@@ -8,6 +8,7 @@
 
 import { tokenService } from './token-service.js';
 import { CONFIG } from '../config.js';
+import { offlineService } from './offline-service.js';
 
 const API_BASE_URL = CONFIG.API_BASE_URL;
 
@@ -15,6 +16,65 @@ const API_BASE_URL = CONFIG.API_BASE_URL;
 let activeRefreshPromise = null;
 
 class ApiClient {
+  constructor() {
+    this._cache = new Map();
+    this._inflightGets = new Map();
+    this._cacheTtl = 15000;
+  }
+
+  invalidateAnalyticsCache() {
+    for (const key of this._cache.keys()) {
+      if (key.startsWith('/analytics/') || key.startsWith('/dashboard/')) this._cache.delete(key);
+    }
+  }
+
+  clearCache() { this._cache.clear(); }
+
+  peek(endpoint) {
+    return this._cache.get(endpoint)?.value || offlineService.getCached(endpoint) || null;
+  }
+
+  setCached(endpoint, value) {
+    this._cache.set(endpoint, { value, timestamp: Date.now() });
+    // request() already updates the persistent offline cache.
+    return value;
+  }
+
+  invalidate(endpoint) {
+    this._cache.delete(endpoint);
+    offlineService.invalidate(endpoint);
+  }
+
+  _invalidateForMutation(endpoint) {
+    if (endpoint.startsWith('/habits')) this.invalidate('/habits');
+    if (endpoint.startsWith('/journals')) this.invalidate('/journals');
+    this.invalidateAnalyticsCache();
+  }
+
+  syncOfflineChanges() { return offlineService.sync((endpoint, options) => this.request(endpoint, options)); }
+
+  /** Cached GET for read-heavy dashboard and analytics views. */
+  async getCached(endpoint, ttl = this._cacheTtl) {
+    const cached = this._cache.get(endpoint);
+    if (cached && Date.now() - cached.timestamp < ttl) return cached.value;
+    if (this._inflightGets.has(endpoint)) return this._inflightGets.get(endpoint);
+
+    const request = this.get(endpoint)
+      .then(value => this.setCached(endpoint, value))
+      .finally(() => this._inflightGets.delete(endpoint));
+    this._inflightGets.set(endpoint, request);
+    return request;
+  }
+
+  async refreshCached(endpoint) {
+    if (this._inflightGets.has(endpoint)) return this._inflightGets.get(endpoint);
+    const request = this.get(endpoint)
+      .then(value => this.setCached(endpoint, value))
+      .finally(() => this._inflightGets.delete(endpoint));
+    this._inflightGets.set(endpoint, request);
+    return request;
+  }
+
   /**
    * Performs an HTTP request.
    * @param {string} endpoint - Relative path (e.g. '/auth/login')
@@ -40,17 +100,31 @@ class ApiClient {
     try {
       const response = await fetch(url, options);
 
+      // Auth endpoints return 401 for bad credentials, not expired tokens —
+      // they must never enter the refresh-token / force-logout flow.
+      const isAuthEndpoint = endpoint.startsWith('/auth/');
+
       // Handle 401 Unauthorized (Token expired / invalid)
-      if (response.status === 401 && !options._isRetry) {
+      if (response.status === 401 && !options._isRetry && !isAuthEndpoint) {
         return await this._handleUnauthorized(endpoint, options);
       }
 
-      return await this._parseResponse(response);
-    } catch (error) {
-      // Handle network errors
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('Network error: Unable to connect to the server. Please check your internet connection.');
+      const parsed = await this._parseResponse(response);
+      if ((options.method || 'GET') === 'GET' && !endpoint.startsWith('/auth/')) {
+        offlineService.cacheGet(endpoint, parsed);
       }
+      return parsed;
+    } catch (error) {
+      const isNetworkError = error.name === 'TypeError' || error.status === 503 || !navigator.onLine;
+      if (isNetworkError && (options.method || 'GET') === 'GET') {
+        const cached = offlineService.getCached(endpoint);
+        if (cached) return cached;
+      }
+      if (isNetworkError && options.method && options.method !== 'GET' && !options._skipOffline && !endpoint.startsWith('/auth/') && !endpoint.startsWith('/data/restore')) {
+        offlineService.enqueue(endpoint, options);
+        return { success: true, message: 'Change saved offline and queued for sync.', offline: true, data: null };
+      }
+      if (isNetworkError) throw new Error('Network error: You are offline and no cached data is available.');
       throw error;
     }
   }
@@ -70,12 +144,12 @@ class ApiClient {
    * @param {Object} body
    * @param {Object} [headers]
    */
-  post(endpoint, body, headers = {}) {
-    return this.request(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
+  async post(endpoint, body, headers = {}) {
+    const value = await this.request(endpoint, {
+      method: 'POST', headers, body: JSON.stringify(body),
     });
+    this._invalidateForMutation(endpoint);
+    return value;
   }
 
   /**
@@ -84,12 +158,12 @@ class ApiClient {
    * @param {Object} body
    * @param {Object} [headers]
    */
-  put(endpoint, body, headers = {}) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body),
+  async put(endpoint, body, headers = {}) {
+    const value = await this.request(endpoint, {
+      method: 'PUT', headers, body: JSON.stringify(body),
     });
+    this._invalidateForMutation(endpoint);
+    return value;
   }
 
   /**
@@ -97,8 +171,10 @@ class ApiClient {
    * @param {string} endpoint
    * @param {Object} [headers]
    */
-  delete(endpoint, headers = {}) {
-    return this.request(endpoint, { method: 'DELETE', headers });
+  async delete(endpoint, headers = {}) {
+    const value = await this.request(endpoint, { method: 'DELETE', headers });
+    this._invalidateForMutation(endpoint);
+    return value;
   }
 
   /**

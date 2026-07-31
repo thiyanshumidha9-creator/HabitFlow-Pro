@@ -14,6 +14,9 @@
 **/.ruff_cache/
 **/venv/
 **/.venv/
+**/.mypy_cache/
+**/.coverage
+**/htmlcov/
 
 # =========================
 # SQLite
@@ -23,6 +26,7 @@
 **/*.db-wal
 **/*.db-journal
 **/*.sqlite3
+habitflow.db
 
 # =========================
 # IDE
@@ -35,8 +39,46 @@
 # =========================
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # =========================
 # Logs
 # =========================
 *.log
+logs/
+
+# =========================
+# Backup Files
+# =========================
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+
+# =========================
+# AI Temporary Files
+# =========================
+.todo.json
+todo.md
+
+# =========================
+# Zip Files
+# =========================
+*.zip
+
+# =========================
+# Build / Cache
+# =========================
+dist/
+build/
+coverage/
+
+# =========================
+# Node (Future)
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
