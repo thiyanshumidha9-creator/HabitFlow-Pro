@@ -31,7 +31,7 @@
   
   <!-- Automatic cache invalidator for version updates -->
   <script>
-    const CURRENT_VERSION = 'v8';
+    const CURRENT_VERSION = 'v10';
     if (localStorage.getItem('habitflow_app_version') !== CURRENT_VERSION) {
       localStorage.setItem('habitflow_app_version', CURRENT_VERSION);
       if ('serviceWorker' in navigator) {

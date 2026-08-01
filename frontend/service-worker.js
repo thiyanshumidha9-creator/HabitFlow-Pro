@@ -5,7 +5,7 @@
    and installability checks.
    ============================================ */
 
-const CACHE_NAME = 'habitflow-v8';
+const CACHE_NAME = 'habitflow-v10';
 const API_CACHE_NAME = 'habitflow-api-v1';
 const ASSETS_TO_CACHE = [
   './',
