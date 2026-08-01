@@ -70,6 +70,12 @@
   gap: var(--space-6);
 }
 
+.list-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 /* ── Responsive: sm (≥ 480px) ──────────────── */
 @media (min-width: 480px) {
   .container {

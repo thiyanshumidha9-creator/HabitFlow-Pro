@@ -8,6 +8,7 @@ import { modalManager } from '../components/modal.js';
 import { toastManager } from '../components/toast.js';
 import { $, $$, on } from '../utils/dom.js';
 import { api } from '../services/api.js';
+import { settingsService } from '../services/settings-service.js';
 
 let viewDate = new Date(); // Currently displayed month
 let selectedDateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -90,8 +91,18 @@ function renderCalendarView(container, habits, journals, habitLogs) {
   });
 
   // Days calculations
+  const settings = settingsService.get();
+  const startDayPref = settings.firstDayOfWeek || 'monday';
+
   const firstDayOfMonth = new Date(year, month, 1);
-  const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sun
+  const standardDay = firstDayOfMonth.getDay(); // 0 = Sun, 1 = Mon, ...
+  
+  let startingDayOfWeek;
+  if (startDayPref === 'sunday') {
+    startingDayOfWeek = standardDay;
+  } else {
+    startingDayOfWeek = standardDay === 0 ? 6 : standardDay - 1;
+  }
   const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
 
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
@@ -200,13 +211,23 @@ function renderCalendarView(container, habits, journals, habitLogs) {
         <div class="card-body p-4">
           <!-- Days of week header -->
           <div class="calendar-grid-header" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; color: var(--text-tertiary); font-size: var(--fs-xs); margin-bottom: 8px;">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
+            ${startDayPref === 'sunday' ? `
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            ` : `
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+              <div>Sun</div>
+            `}
           </div>
 
           <!-- Calendar Days Grid -->

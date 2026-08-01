@@ -5,7 +5,7 @@
    and installability checks.
    ============================================ */
 
-const CACHE_NAME = 'habitflow-v7';
+const CACHE_NAME = 'habitflow-v8';
 const API_CACHE_NAME = 'habitflow-api-v1';
 const ASSETS_TO_CACHE = [
   './',
@@ -38,6 +38,8 @@ const ASSETS_TO_CACHE = [
   './utils/theme.js',
   './utils/icons.js',
   './utils/router.js',
+  './utils/time.js',
+  './utils/i18n.js',
   './services/token-service.js',
   './services/api.js',
   './services/validation.js',
@@ -45,6 +47,7 @@ const ASSETS_TO_CACHE = [
   './services/settings-service.js',
   './services/data-service.js',
   './services/offline-service.js',
+  './services/notification-service.js',
   './layouts/app-layout.js',
   './components/sidebar.js',
   './components/topnav.js',

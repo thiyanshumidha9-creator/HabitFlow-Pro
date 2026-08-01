@@ -4,10 +4,10 @@ import { api } from '../services/api.js';
 import { PROFILE_PICTURE_KEY } from '../services/settings-service.js';
 import { toastManager } from '../components/toast.js';
 import { renderIcons } from '../utils/icons.js';
+import { formatDateTime } from '../utils/time.js';
 
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const formatDate = value => value ? new Date(value).toLocaleDateString(undefined,{dateStyle:'long'}) : 'Not available';
-const formatDateTime = value => value ? new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}) : 'Not available';
 const initials = name => String(name || 'Member').trim().split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase();
 let stats = null;
 let pendingPicture = null;

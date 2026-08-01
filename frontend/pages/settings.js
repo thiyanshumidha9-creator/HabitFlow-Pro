@@ -8,6 +8,8 @@ import { settingsService } from '../services/settings-service.js';
 import { offlineService } from '../services/offline-service.js';
 import { exportJson, exportJournalTxt, exportHabitCsv, importBackupFile } from '../services/data-service.js';
 import { toastManager } from '../components/toast.js';
+import { t } from '../utils/i18n.js';
+import { notificationService } from '../services/notification-service.js';
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const option = (value, label, current) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`;
@@ -21,22 +23,22 @@ export function render(container) {
   const settings = settingsService.get();
   const n = settings.notifications;
   container.innerHTML = `<div class="page-enter sprint6-page">
-    <div class="mb-6"><h1 class="page-title">Settings</h1><p class="page-subtitle">Customize and manage your HabitFlow Pro workspace</p></div>
+    <div class="mb-6"><h1 class="page-title">${t('settings')}</h1><p class="page-subtitle">Customize and manage your HabitFlow Pro workspace</p></div>
     <div class="settings-grid">
-      ${createCard({className:'settings-card',title:sectionTitle('palette','Appearance'),subtitle:'Theme and display preferences',body:`
-        ${selectRow('setting-theme','Theme',settings.theme,[['light','Light Mode'],['dark','Dark Mode'],['system','System Theme']])}
-        ${selectRow('setting-week','First Day of Week',settings.firstDayOfWeek,[['monday','Monday'],['sunday','Sunday']])}
-        ${selectRow('setting-time','Time Format',settings.timeFormat,[['12','12 hour'],['24','24 hour']])}
-        ${selectRow('setting-view','Default Habit View',settings.defaultHabitView,[['cards','Cards'],['list','List']])}
-        ${selectRow('setting-language','Language',settings.language,[['en','English (placeholder)']])}`})}
-      ${createCard({className:'settings-card',title:sectionTitle('bell-ring','Notifications'),subtitle:'Browser and reminder preferences',body:`
+      ${createCard({className:'settings-card',title:sectionTitle('palette',t('appearance')),subtitle:'Theme and display preferences',body:`
+        ${selectRow('setting-theme',t('theme'),settings.theme,[['light','Light Mode'],['dark','Dark Mode'],['system','System Theme']])}
+        ${selectRow('setting-week',t('firstDayOfWeek'),settings.firstDayOfWeek,[['monday','Monday'],['sunday','Sunday']])}
+        ${selectRow('setting-time',t('timeFormat'),settings.timeFormat,[['12','12 hour'],['24','24 hour']])}
+        ${selectRow('setting-view',t('defaultHabitView'),settings.defaultHabitView,[['cards','Cards'],['list','List']])}
+        ${selectRow('setting-language',t('language'),settings.language,[['en','English'],['es','Español']])}`})}
+      ${createCard({className:'settings-card',title:sectionTitle('bell-ring',t('notifications')),subtitle:'Browser and reminder preferences',body:`
         <p id="notification-support" class="text-body-sm mb-3">${notificationStatus()}</p>
         ${toggle('notify-habits','Habit reminders','Reminder for active habits',n.habitReminders)}
         ${toggle('notify-journal','Daily journal reminder','A daily writing prompt',n.journalReminder)}
         ${toggle('notify-achievements','Achievement notifications','Celebrate newly unlocked milestones',n.achievements)}
         ${toggle('notify-weekly','Weekly summary','Weekly activity recap',n.weeklySummary)}
         ${toggle('notify-monthly','Monthly summary','Monthly progress recap',n.monthlySummary)}`})}
-      ${createCard({className:'settings-card',title:sectionTitle('shield-check','Privacy'),subtitle:'Session and local-device controls',body:`
+      ${createCard({className:'settings-card',title:sectionTitle('shield-check',t('privacy')),subtitle:'Session and local-device controls',body:`
         ${toggle('setting-remember','Remember Login','Keep this account signed in on this device',settings.rememberLogin)}
         ${toggle('setting-lock','Lock App','Require a quick unlock after returning to the app',settings.lockApp)}`})}
       ${createCard({className:'settings-card',title:sectionTitle('database','Data'),subtitle:'Download, import, and restore your information',body:`
@@ -61,7 +63,7 @@ function bind(container) {
   container.querySelector('#setting-week').onchange = e => save({ firstDayOfWeek:e.target.value });
   container.querySelector('#setting-time').onchange = e => save({ timeFormat:e.target.value });
   container.querySelector('#setting-view').onchange = e => save({ defaultHabitView:e.target.value });
-  container.querySelector('#setting-language').onchange = e => save({ language:e.target.value });
+  container.querySelector('#setting-language').onchange = e => { save({ language:e.target.value }); render(container); };
   container.querySelector('#setting-remember').onchange = e => { tokenService.setRememberMe(e.target.checked); save({ rememberLogin:e.target.checked }); };
   container.querySelector('#setting-lock').onchange = e => save({ lockApp:e.target.checked });
   const notificationMap = {'notify-habits':'habitReminders','notify-journal':'journalReminder','notify-achievements':'achievements','notify-weekly':'weeklySummary','notify-monthly':'monthlySummary'};
@@ -73,12 +75,36 @@ function bind(container) {
         if (permission !== 'granted') { e.target.checked=false; toastManager.error('Notification permission was denied.', 'Notifications'); return; }
       }
     }
-    settingsService.setNotification(key,e.target.checked); toastManager.success('Notification preference saved.', 'Notifications');
+    settingsService.setNotification(key,e.target.checked);
+    toastManager.success('Notification preference saved.', 'Notifications');
+    
+    // Connect clean hooks to the notification service
+    if (key === 'habitReminders') {
+      notificationService.updateHabitReminders(e.target.checked);
+    } else if (key === 'journalReminder') {
+      notificationService.updateJournalReminder(e.target.checked);
+    } else if (key === 'weeklySummary') {
+      notificationService.updateWeeklySummary(e.target.checked);
+    } else if (key === 'monthlySummary') {
+      notificationService.updateMonthlySummary(e.target.checked);
+    }
   });
   container.querySelector('#clear-cache').onclick = async () => {
     offlineService.clearDataCache();
-    if ('caches' in window) await Promise.all((await caches.keys()).map(key=>caches.delete(key)));
-    toastManager.success('Local cache cleared. Pending offline changes were preserved.', 'Cache Cleared');
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    }
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
+    toastManager.success('Cache cleared. Reloading application to apply updates...', 'Success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
   container.querySelector('#settings-logout').onclick = async () => { await authService.logout(); location.hash='#/login'; };
   const runExport = async (fn,label) => { try { await fn(); toastManager.success(`${label} downloaded.`, 'Export Complete'); } catch(e) { toastManager.error(e.message,'Export Failed'); } };

@@ -8,6 +8,7 @@ import { modalManager } from '../components/modal.js';
 import { toastManager } from '../components/toast.js';
 import { $, $$, on } from '../utils/dom.js';
 import { api } from '../services/api.js';
+import { settingsService } from '../services/settings-service.js';
 
 const categoryBadges = {
   health: { label: 'Health & Fitness', bg: 'var(--color-success-subtle)', color: 'var(--color-success-dark)' },
@@ -56,6 +57,10 @@ export async function render(container, showLoader = true) {
  * @param {Array} habits
  */
 function renderHabitsList(container, habits) {
+  const settings = settingsService.get();
+  const isList = settings.defaultHabitView === 'list';
+  const layoutClass = isList ? 'list-layout' : 'grid-auto-fill';
+
   const habitsGridHTML = habits.length === 0
     ? `
       <div class="card card--elevated">
@@ -71,7 +76,7 @@ function renderHabitsList(container, habits) {
       </div>
     `
     : `
-      <div class="grid-auto-fill">
+      <div class="${layoutClass}">
         ${habits.map(habit => {
           const badge = categoryBadges[habit.category] || categoryBadges.productivity;
           const habitColor = habit.color || 'var(--color-primary)';
