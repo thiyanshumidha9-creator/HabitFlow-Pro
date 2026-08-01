@@ -8,6 +8,8 @@ from pydantic import BaseModel, EmailStr, Field
 class ProfileUpdate(BaseModel):
     full_name: str | None = Field(None, min_length=2, max_length=150)
     email: EmailStr | None = None
+    phone: str | None = Field(None, max_length=30)
+    avatar: str | None = None
 
 
 class PasswordChange(BaseModel):

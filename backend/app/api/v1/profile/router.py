@@ -26,6 +26,10 @@ def update_profile(body: ProfileUpdate, db: Session = Depends(get_db), current_u
         current_user.email = body.email.lower().strip()
     if body.full_name is not None:
         current_user.full_name = body.full_name.strip()
+    if body.phone is not None:
+        current_user.phone = body.phone.strip() if body.phone.strip() else None
+    if body.avatar is not None:
+        current_user.avatar = body.avatar.strip() if body.avatar.strip() else None
     db.add(current_user); db.commit(); db.refresh(current_user)
     return SuccessResponse(message="Profile updated successfully.", data={"user": UserResponse.model_validate(current_user).model_dump()})
 

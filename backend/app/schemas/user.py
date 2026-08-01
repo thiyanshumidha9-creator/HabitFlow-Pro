@@ -26,5 +26,7 @@ class UserResponse(BaseModel):
     last_login_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    phone: Optional[str] = None
+    avatar: Optional[str] = None
 
     model_config = {"from_attributes": True}

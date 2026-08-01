@@ -707,24 +707,32 @@ function bind(container){
     reader.readAsDataURL(selected);
   };
 
-  container.querySelector('#save-avatar').onclick = () => {
+  container.querySelector('#save-avatar').onclick = async () => {
     if (!pendingPicture && localStorage.getItem(PROFILE_PICTURE_KEY)) return;
     const value = pendingPicture;
-    if (value) localStorage.setItem(PROFILE_PICTURE_KEY, value);
-    pendingPicture = null;
-    window.dispatchEvent(new CustomEvent('profile:photochange', { detail: { picture: value } }));
-    logProfileEvent('profile', 'Updated profile photo');
-    toastManager.success('Profile photo saved.', 'Profile Updated');
-    render(container);
+    try {
+      await authService.updateProfile({ avatar: value });
+      pendingPicture = null;
+      window.dispatchEvent(new CustomEvent('profile:photochange', { detail: { picture: value } }));
+      logProfileEvent('profile', 'Updated profile photo');
+      toastManager.success('Profile photo saved.', 'Profile Updated');
+      render(container);
+    } catch (err) {
+      toastManager.error(err.message || 'Failed to save profile photo.', 'Profile Update Failed');
+    }
   };
 
-  container.querySelector('#remove-avatar').onclick = () => {
-    localStorage.removeItem(PROFILE_PICTURE_KEY);
-    pendingPicture = null;
-    window.dispatchEvent(new CustomEvent('profile:photochange', { detail: { picture: null } }));
-    logProfileEvent('profile', 'Removed profile photo');
-    toastManager.success('Profile photo removed.', 'Photo Removed');
-    render(container);
+  container.querySelector('#remove-avatar').onclick = async () => {
+    try {
+      await authService.updateProfile({ avatar: null });
+      pendingPicture = null;
+      window.dispatchEvent(new CustomEvent('profile:photochange', { detail: { picture: null } }));
+      logProfileEvent('profile', 'Removed profile photo');
+      toastManager.success('Profile photo removed.', 'Photo Removed');
+      render(container);
+    } catch (err) {
+      toastManager.error(err.message || 'Failed to remove profile photo.', 'Profile Update Failed');
+    }
   };
 
   // Checklist Action Bindings

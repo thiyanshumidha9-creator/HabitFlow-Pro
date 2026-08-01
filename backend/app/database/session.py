@@ -88,4 +88,15 @@ def create_tables() -> None:
     from app.models.base import Base  # noqa: F811 – deferred import
 
     Base.metadata.create_all(bind=engine)
+
+    # Automatically add phone and avatar columns to users table if they are missing (SQLite)
+    from sqlalchemy import text
+    with engine.begin() as conn:
+        res = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+        columns = [row[1] for row in res]
+        if "phone" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR(30)"))
+        if "avatar" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN avatar TEXT"))
+
     logger.info("database_tables_created")

@@ -7,6 +7,7 @@
 
 import { api } from './api.js';
 import { tokenService } from './token-service.js';
+import { PROFILE_PICTURE_KEY } from './settings-service.js';
 
 class AuthService {
   constructor() {
@@ -176,8 +177,17 @@ class AuthService {
    * @private
    */
   _notifyStateChange() {
-    if (this._currentUser) localStorage.setItem('habitflow_cached_user', JSON.stringify(this._currentUser));
-    else if (navigator.onLine) localStorage.removeItem('habitflow_cached_user');
+    if (this._currentUser) {
+      localStorage.setItem('habitflow_cached_user', JSON.stringify(this._currentUser));
+      if (this._currentUser.avatar) {
+        localStorage.setItem(PROFILE_PICTURE_KEY, this._currentUser.avatar);
+      } else {
+        localStorage.removeItem(PROFILE_PICTURE_KEY);
+      }
+    } else {
+      if (navigator.onLine) localStorage.removeItem('habitflow_cached_user');
+      localStorage.removeItem(PROFILE_PICTURE_KEY);
+    }
     const event = new CustomEvent('auth:statechange', {
       detail: {
         isAuthenticated: this.isAuthenticated,

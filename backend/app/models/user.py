@@ -64,6 +64,14 @@ class User(Base, UUIDMixin, TimestampMixin):
         DateTime(timezone=True),
         nullable=True,
     )
+    phone: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+    avatar: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
 
     # ── Relationships ──────────────────────────────────────────
     refresh_tokens: Mapped[List["RefreshToken"]] = relationship(

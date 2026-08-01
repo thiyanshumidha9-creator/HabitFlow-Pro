@@ -8,9 +8,24 @@ def auth(client):
 
 def test_profile_update_stats_and_password(client):
     headers = auth(client)
-    response = client.put('/api/v1/profile', headers=headers, json={'full_name': 'Updated User', 'email': 'updated@example.com'})
+    response = client.put('/api/v1/profile', headers=headers, json={
+        'full_name': 'Updated User',
+        'email': 'updated@example.com',
+        'phone': '+15555555555',
+        'avatar': 'data:image/png;base64,abcdef'
+    })
     assert response.status_code == 200
-    assert response.json()['data']['user']['full_name'] == 'Updated User'
+    user_data = response.json()['data']['user']
+    assert user_data['full_name'] == 'Updated User'
+    assert user_data['phone'] == '+15555555555'
+    assert user_data['avatar'] == 'data:image/png;base64,abcdef'
+
+    me_response = client.get('/api/v1/auth/me', headers=headers)
+    assert me_response.status_code == 200
+    me_user_data = me_response.json()['data']['user']
+    assert me_user_data['phone'] == '+15555555555'
+    assert me_user_data['avatar'] == 'data:image/png;base64,abcdef'
+
     assert client.get('/api/v1/profile/stats', headers=headers).status_code == 200
     wrong = client.put('/api/v1/profile/password', headers=headers, json={'current_password': 'wrong', 'new_password': 'NewStr0ng!Pass'})
     assert wrong.status_code == 401
